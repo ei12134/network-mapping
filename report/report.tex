@@ -18,29 +18,29 @@
 \newpage
 
 \begin{abstract}
-No âmbito da unidade curricular de Concepção e análise de algoritmos foi nos proposto o desenvolvimento de uma aplicação  para planificação da distribuição de fibra óptica numa aldeia que evidenciasse o conhecimento e uso adequado de algoritmos sobre grafos. Reuniram-se dados sobre coordenadas geográficas e distâncias através do sítio da Internet \emph{OpenStreetmap}. Após a construção de um grafo que represente a área em estudo, são lhe aplicados algoritmos que determinam a melhor solução para o problema de minimização da distância e custo necessários na instalação de fibra óptica.
+No âmbito da unidade curricular de Concepção e análise de algoritmos foi nos proposto o desenvolvimento de uma aplicação  para planificação da distribuição de fibra óptica numa aldeia que evidenciasse o conhecimento e uso adequado de algoritmos sobre grafos. Reuniram-se dados sobre coordenadas geográficas e distâncias através do sítio da Internet \emph{OpenStreetmap}. Após a construção de um grafo que represente a área em estudo, são lhe aplicados algoritmos que determinam a melhor solução para o problema na minimização da distância e dos custos da instalação de fibra óptica.
 \end{abstract}
 
 \section{Formalização do problema}
 \subsection{Dados de entrada}
-Mapeou-se uma área real, usando coordenadas geográficas reais que representam intersecções entre ruas e coordenadas de casas. Para este efeito, utilizou-se os dados fornecidos pelo OpenStreetMap\footnote{https://www.openstreetmap.org/\#map=17/41.83596/-8.42833} sobre a área seleccionada. Armazenaram-se os dados em dois ficheiros distintos, \texttt{vertexes.csv} onde temos os números identificativos das casas e intersecções de ruas, vértices do grafo e \texttt{edges.csv} onde se estabelecem as relações entre os vértices do ficheiro anterior e respectivas distâncias, por forma a caracterizar as arestas do grafo.
+Mapeou-se uma área real, usando coordenadas geográficas reais que representam intersecções entre ruas e coordenadas de casas. Para este efeito, utilizaram-se dados extraídos do OpenStreetMap\footnote{https://www.openstreetmap.org/\#map=17/41.83596/-8.42833} sobre a área seleccionada. Armazenaram-se os dados em dois ficheiros distintos, \texttt{vertexes.csv} onde temos os números identificativos das casas e intersecções de ruas, vértices do grafo e \texttt{edges.csv} onde se estabelecem as relações entre os vértices do ficheiro anterior e respectivas distâncias, por forma a caracterizar as arestas do grafo.\vspace{0,50cm}
 
 Os vértices são guardados um por cada linha e são separados por ponto e vírgula de um valor que determina se o vértice é intersecção de rua - \emph{0}, casa - \emph{1} ou central - \emph{2}.
 
-Exemplo: \emph{3;1} (o vértice número 3 é uma casa)
+Exemplo: \emph{3;1} (o vértice número 3 é uma casa)\vspace{0,50cm}
 
 As arestas são guardadas uma por cada linha, sendos os primeiros dois números os números identificativos dos vértices e o último o valor da distância em metros entre eles.
 
 Exemplo: \emph{2;3;150} (o vértice número 3 dista 150 metros do vértice 2)
 
 \subsection{Limites e condições de aplicação}
-Uma vez que os dados foram recolhidos de forma manual, torna-se evidente que para representar uma área real muito grande que resulte num grafo de maiores dimensões se torna pouco prático, pela morosidade de todo o processo de escrita nos ficheiros atrás mencionados. A precisão da aplicação também estará dependente da qualidade e precisão dos valores iniciais, nomeadamente das coordenadas e distâncias.
+Uma vez que os dados foram recolhidos de forma manual, torna-se evidente que para representar uma área real muito grande que resulte num grafo de maiores dimensões se torna pouco prático, pela morosidade de todo o processo de escrita nos ficheiros atrás mencionados. A precisão da aplicação também estará dependente da qualidade e precisão dos valores iniciais, nomeadamente das coordenadas e distâncias. Em consequência dos algoritmos usados, referidos na secção seguinte, os grafos alvo terão de ser não dirigidos e conexos.
 
 \subsection{Resultados esperados}
 A aplicação determinará as coordenadas dos vértices que definem as arestas seleccionadas para instalação da cablagem com fibra óptica e a distância total mínima, soma da distância destas arestas. O subconjunto das arestas que formam a árvore de expansão mínima serão armazenadas num ficheiro \emph{output.csv}, com formatação idêntica à do ficheiro das arestas.
 
 \section{Perspectivas de solução}
-Após análise do enunciado, verificou-se que um método adequado na resolução do problema será a utilização de um algoritmo que determine uma árvore de expansão mínima, já vez que se pretende passar fibra por todas as casas de forma o mais eficiente possível, ou seja, com menor gasto de cabo fibra óptica, reduzindo os custos para a empresa.
+Após análise do enunciado, verificou-se que um método adequado na resolução do problema será a utilização de um algoritmo que determine uma árvore de expansão mínima, já que se pretende passar fibra por todas as casas de forma o mais eficiente possível, ou seja, com menor gasto de cabo fibra óptica, reduzindo os custos para a empresa.
 Temos em mente a utilização de 3 algoritmos:
 
 \begin{itemize}
@@ -61,7 +61,7 @@ Temos em mente a utilização de 3 algoritmos:
 
 
 \section{Métricas de avaliação}
-Como vamos usar grafos de dimensão pequena, no teste da aplicação, julga-se necessária a criação de testes unitários que executem o mesmo código numa ordem de magnitude o suficientemente grande para se efectuarem medições com valores múltiplos de segundo.
+Como se vai trabalhar com grafos de pequena dimensão, no teste da aplicação, julga-se necessária a criação de testes unitários que executem de forma repetida o mesmo código numa ordem de magnitude o suficientemente grande para se efectuarem medições com valores de múltiplos de segundo.
 
 Para a medição da complexidade espacial ter-se-á em conta a memória necessária para armazenar todas as variáveis criadas na execução do algoritmo e crescimento com o aumento da quantidade dos dados de entrada.
 \appendix
