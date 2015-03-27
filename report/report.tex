@@ -18,39 +18,45 @@
 \newpage
 
 \begin{abstract}
-No âmbito da unidade curricular de Concepção e análise de algoritmos foi nos proposto o desenvolvimento de uma aplicação  para planificação da distribuição de fibra óptica numa aldeia que evidenciasse o conhecimento e uso adequado de algoritmos sobre grafos. Reuniram-se dados sobre coordenadas geográficas e distâncias através do sítio da Internet \emph{OpenStreetmap}. Após a construção de um grafo que represente a área em estudo, são lhe aplicados algoritmos que determinam a melhor solução para o problema na minimização da distância e dos custos da instalação de fibra óptica.
+No âmbito da unidade curricular de Concepção e análise de algoritmos foi nos proposto o desenvolvimento de uma aplicação  para planificação da distribuição de fibra óptica numa aldeia que evidencie o conhecimento e uso adequado de algoritmos sobre grafos. Reúnem-se dados sobre coordenadas geográficas e distâncias através do sítio da Internet \emph{OpenStreetmap}. Após a construção de um grafo que represente a área em estudo, são lhe aplicados algoritmos que determinam a melhor solução para o problema na minimização da distância e dos custos da instalação de fibra óptica.
 \end{abstract}
 
 \section{Formalização do problema}
 \subsection{Dados de entrada}
-rede que representa ruas. ruas podem ter ou nao casas. cubrir ruas . nao cubrir grafo todo, apenas cobrir arestas que tenham casas.
+Mapeia-se uma área, usando coordenadas geográficas que representem intersecções entre ruas ou coordenadas de casas. Para este efeito, usam-se dados extraídos do OpenStreetMap\footnote{https://www.openstreetmap.org/\#map=17/41.83596/-8.42833} sobre a área seleccionada.
 
-G<V,E>  v conjunto de cruzamentos ou casas
-e ligação ou distancia entre v's
+Construção de um grafo a partir de vértices casa, cruzamento ou central $V$ e arestas $E$ que representam as distâncias entre as casas ligadas pelas ruas.
 
-Posição central (xc,yc) pertence aos vertices
+\begin{equation}
+G<V,E> 
+\end{equation}
 
-Mapeou-se uma área real, usando coordenadas geográficas reais que representam intersecções entre ruas e coordenadas de casas. Para este efeito, utilizaram-se dados extraídos do OpenStreetMap\footnote{https://www.openstreetmap.org/\#map=17/41.83596/-8.42833} sobre a área seleccionada. Armazenaram-se os dados em dois ficheiros distintos, \texttt{vertexes.csv} onde temos os números identificativos das casas e intersecções de ruas, vértices do grafo e \texttt{edges.csv} onde se estabelecem as relações entre os vértices do ficheiro anterior e respectivas distâncias, por forma a caracterizar as arestas do grafo.\vspace{0,50cm}
+Pretende-se guardar os dados em dois ficheiros distintos, \texttt{vertexes.csv} onde temos os números identificativos das casas e intersecções de ruas, vértices do grafo e \texttt{edges.csv} onde se estabelecem as relações entre os vértices do ficheiro anterior e respectivas distâncias, por forma a caracterizar as arestas do grafo.\vspace{0,50cm}
 
 Os vértices são guardados um por cada linha e são separados por ponto e vírgula de um valor que determina se o vértice é intersecção de rua - \emph{0}, casa - \emph{1} ou central - \emph{2}.
 
 Exemplo: \emph{3;1} (o vértice número 3 é uma casa)\vspace{0,50cm}
 
-As arestas são guardadas uma por cada linha, sendos os primeiros dois números os números identificativos dos vértices e o último o valor da distância em metros entre eles.
+As arestas são guardadas uma por cada linha, sendo os primeiros dois valores os números identificativos dos vértices e o último a distância em metros entre eles.
 
 Exemplo: \emph{2;3;150} (o vértice número 3 dista 150 metros do vértice 2)
 
-função objectivo -> dist = min do sumatorio i j : vi,vj pertenca a resultado
-
 \subsection{Limites e condições de aplicação}
-nao podem haver duplicados vi vj e todos os vertices casa têm de fazer parte da lista final
+Na lista final, não poderá existir repetição de pares de vértices, ou seja, arestas repetidas e todos os vértices casa têm de estar contidos nesta lista final.
 
-Uma vez que os dados foram recolhidos de forma manual, torna-se evidente que para representar uma área real muito grande que resulte num grafo de maiores dimensões se torna pouco prático, pela morosidade de todo o processo de escrita nos ficheiros atrás mencionados. A precisão da aplicação também estará dependente da qualidade e precisão dos valores iniciais, nomeadamente das coordenadas e distâncias. Em consequência dos algoritmos usados, referidos na secção seguinte, os grafos alvo terão de ser não dirigidos e conexos.
+Caso os dados sejam recolhidos de forma manual, torna-se difícil a representação de uma área grande, com muitos vértices e que resulte num grafo de maiores dimensões, pela morosidade de todo o processo de escrita nos ficheiros atrás mencionados. Os resultados da aplicação também estarão dependentes da qualidade e precisão dos valores iniciais, nomeadamente das coordenadas e das distâncias. Em consequência dos algoritmos usados, referidos na secção seguinte, os grafos alvo terão de ser obrigatoriamente não dirigidos e conexos.
 
 \subsection{Resultados esperados}
-resultado = lista<vi,vj> , vi, vj pertence a vs
-
 A aplicação determinará as coordenadas dos vértices que definem as arestas seleccionadas para instalação da cablagem com fibra óptica e a distância total mínima, soma da distância destas arestas. O subconjunto das arestas que formam a árvore de expansão mínima serão armazenadas num ficheiro \emph{output.csv}, com formatação idêntica à do ficheiro das arestas.
+
+\begin{equation}
+Output = List<V_i,V_j> V_i,V_j \in V_s
+\end{equation}
+
+A função objectivo retornará a distância mínima $D$ do somatório das distancias parciais $dist$ das arestas formadas pelos pares de vértices escolhidos.
+\begin{equation}
+D = min(\sum_{i,j} dist(V_i,V_j))  \colon  V_i,V_j \in Output_k
+\end{equation}
 
 \section{Perspectivas de solução}
 Após análise do enunciado, verificou-se que um método adequado na resolução do problema será a utilização de um algoritmo que determine uma árvore de expansão mínima, já que se pretende passar fibra por todas as casas de forma o mais eficiente possível, ou seja, com menor gasto de cabo fibra óptica, reduzindo os custos para a empresa.
