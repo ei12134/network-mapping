@@ -4,11 +4,11 @@
 \usepackage[portuguese]{babel}
 \usepackage{graphicx}
 \usepackage[pdftex]{hyperref}
-\hypersetup{unicode=true}
+\usepackage{hyphenat}
 
 \begin{document}
 
-\title{Concepção e análise de algoritmos\\ \huge \textbf{Distribuição de telecomunicações}\\[3.5cm]\normalsize  Turma 2 - Grupo C\\[0.5cm]}
+\title{Concepção e Análise de Algoritmos\\ \huge \textbf{Distribuição de telecomunicações}\\[3.5cm]\normalsize  Turma 2 - Grupo C\\[0.5cm]}
 \author{José Peixoto \\Pedro Moura \and 200603103\\201306843 \and ei12134@fe.up.pt \\ up201306843@fe.up.pt\\[3.5cm]}
 
 \maketitle
@@ -18,20 +18,20 @@
 \newpage
 
 \begin{abstract}
-No âmbito da unidade curricular de Concepção e análise de algoritmos foi nos proposto o desenvolvimento de uma aplicação  para planificação da distribuição de fibra óptica numa aldeia que evidencie o conhecimento e uso adequado de algoritmos sobre grafos. Reúnem-se dados sobre coordenadas geográficas e distâncias através do sítio da Internet \emph{OpenStreetmap}. Após a construção de um grafo que represente a área em estudo, são lhe aplicados algoritmos que determinam a melhor solução para o problema na minimização da distância e dos custos da instalação de fibra óptica.
+No âmbito da unidade curricular de Concepção e Análise de Algoritmos foi-nos proposto o desenvolvimento de uma aplicação  para planificação da distribuição de fibra óptica numa aldeia que evidencie o conhecimento e uso adequado de algoritmos sobre grafos. Reú\-nem\--se dados sobre coordenadas geográficas e distâncias através do sítio da Internet \emph{OpenStreetmap}. Após a construção de um grafo que represente a área em estudo, são-lhe aplicados algoritmos que determinam a melhor solução para o problema na minimização da distância e dos custos da instalação de fibra óptica.
 \end{abstract}
 
 \section{Formalização do problema}
 \subsection{Dados de entrada}
 Mapeia-se uma área, usando coordenadas geográficas que representem intersecções entre ruas ou coordenadas de casas. Para este efeito, usam-se dados extraídos do OpenStreetMap\footnote{https://www.openstreetmap.org/\#map=17/41.83596/-8.42833} sobre a área seleccionada.
 
-Construção de um grafo a partir de vértices casa, cruzamento ou central $V$ e arestas $E$ que representam as distâncias entre as casas ligadas pelas ruas.
+Construção de um grafo a partir de vértices-casa, cruzamento ou central $V$ e arestas $E$ que representam as distâncias entre as casas ligadas pelas ruas.
 
 \begin{equation}
 G<V,E> 
 \end{equation}
 
-Pretende-se guardar os dados em dois ficheiros distintos, \texttt{vertexes.csv} onde temos os números identificativos das casas e intersecções de ruas, vértices do grafo e \texttt{edges.csv} onde se estabelecem as relações entre os vértices do ficheiro anterior e respectivas distâncias, por forma a caracterizar as arestas do grafo.\vspace{0,50cm}
+Pretende-se guardar os dados em dois ficheiros distintos, \texttt{vertexes.csv}, onde temos os números identificativos das casas e intersecções de ruas, vértices do grafo e \texttt{edges.csv} onde se estabelecem as relações entre os vértices do ficheiro anterior e respectivas distâncias, por forma a caracterizar as arestas do grafo.\vspace{0,50cm}
 
 Os vértices são guardados um por cada linha e são separados por ponto e vírgula de um valor que determina se o vértice é intersecção de rua - \emph{0}, casa - \emph{1} ou central - \emph{2}.
 
@@ -42,9 +42,9 @@ As arestas são guardadas uma por cada linha, sendo os primeiros dois valores os 
 Exemplo: \emph{2;3;150} (o vértice número 3 dista 150 metros do vértice 2)
 
 \subsection{Limites e condições de aplicação}
-Na lista final, não poderá existir repetição de pares de vértices, ou seja, arestas repetidas e todos os vértices casa têm de estar contidos nesta lista final.
+Na lista final, não poderá existir repetição de pares de vértices, ou seja, arestas repetidas e todos os vértices-casa têm de estar contidos nesta lista final.
 
-Caso os dados sejam recolhidos de forma manual, torna-se difícil a representação de uma área grande, com muitos vértices e que resulte num grafo de maiores dimensões, pela morosidade de todo o processo de escrita nos ficheiros atrás mencionados. Os resultados da aplicação também estarão dependentes da qualidade e precisão dos valores iniciais, nomeadamente das coordenadas e das distâncias. Em consequência dos algoritmos usados, referidos na secção seguinte, os grafos alvo terão de ser obrigatoriamente não dirigidos e conexos.
+Caso os dados sejam recolhidos de forma manual, torna-se difícil a representação de uma área grande, com muitos vértices dos quais resulte num grafo de maiores dimensões, pela morosidade de todo o processo de escrita nos ficheiros atrás mencionados. Os resultados da aplicação também estarão dependentes da qualidade e precisão dos valores iniciais, nomeadamente das coordenadas e das distâncias. Em consequência dos algoritmos usados, referidos na secção seguinte, os grafos alvo terão de ser obrigatoriamente não dirigidos e conexos.
 
 \subsection{Resultados esperados}
 A aplicação determinará as coordenadas dos vértices que definem as arestas seleccionadas para instalação da cablagem com fibra óptica e a distância total mínima, soma da distância destas arestas. O subconjunto das arestas que formam a árvore de expansão mínima serão armazenadas num ficheiro \emph{output.csv}, com formatação idêntica à do ficheiro das arestas.
@@ -66,23 +66,25 @@ Temos em mente a utilização de 3 algoritmos:
 \item Algoritmos que determinam árvores de expansão mínima:
 \end{itemize}
 \begin{description}
-\item[Prim] é um algoritmo ganancioso que encontra a árvore expansão mínima para um grafo não direccionado, ou seja, este algoritmo tenta encontrar um subconjunto das arestas que formam uma árvore contendo todos os vértices em que o peso total de todas as arestas é mínimo.
-É mais eficiente do que o algoritmo de \emph{Kruskal} se o numero de arestas for muito elevado em relação aos vértices.
-\item[Kruskal] tal como o algoritmo de \emph{Prim} serve para encontrar a árvore de expansão mínima. É mais adequado do que o algoritmo \emph{Prim} para grafos mais simples com poucas arestas pois usa estruturas mais simples.
+\item[Prim] é um algoritmo ganancioso que encontra a árvore de expansão mínima para um grafo não direccionado, ou seja, este algoritmo tenta encontrar um subconjunto das arestas que formam uma árvore contendo todos os vértices onde o peso total de todas as arestas é mínimo.
+É mais eficiente do que o algoritmo de \emph{Kruskal} se o número de arestas for muito elevado em relação aos vértices.
+\item[Kruskal] tal como o algoritmo de \emph{Prim} serve para encontrar a árvore de expansão mínima. É mais adequado do que o algoritmo \emph{Prim} para grafos mais simples com poucas arestas, pois usa estruturas mais simples.
 \end{description}
 
 \begin{itemize}
 \item Algoritmos que determinam o caminho mais curto:
 \end{itemize}
 \begin{description}
-\item[Dijkstra] com programação dinâmica é usado para encontrar os caminhos mais curtos entre os vértices de um grafo. Neste caso será necessário para procurar o caminho mais curto entre casas que tenham uma ou mais intersecções de ruas entre elas, ou seja, como uma intersecção de ruas pode não ser um vértice casa pois não contém uma casa, selecciona-se o caminho mais curto entre dois vértices casa para que este se torne como que uma aresta entre essas duas casas de forma a ser usado correctamente no algoritmo usado para determinar a árvore expansão de custo mínimo.
+\item[Dijkstra] com programação dinâmica é usado para encontrar os caminhos mais curtos entre os vértices de um grafo. Neste caso será necessário para procurar o caminho mais curto entre casas que tenham uma ou mais intersecções de ruas entre elas, ou seja, como uma intersecção de ruas pode não ser um vértice casa, pois não contém uma casa, selecciona-se o caminho mais curto entre dois vértices-casa para que este se torne como que uma aresta entre essas duas casas de forma a ser usado correctamente no algoritmo usado para determinar a árvore expansão de custo mínimo.
 \end{description}
 
 
 \section{Métricas de avaliação}
 Como se vai trabalhar com grafos de pequena dimensão, no teste da aplicação, julga-se necessária a criação de testes unitários que executem de forma repetida o mesmo código numa ordem de magnitude o suficientemente grande para se efectuarem medições com valores de múltiplos de segundo.
 
-Para a medição da complexidade espacial ter-se-á em conta a memória necessária para armazenar todas as variáveis criadas na execução do algoritmo e crescimento com o aumento da quantidade dos dados de entrada.
+Para a medição da complexidade espacial, ter-se-á em conta a memória necessária para armazenar todas as variáveis criadas na execução do algoritmo e crescimento com o aumento da quantidade dos dados de entrada.{\let\thefootnote\relax\footnote{N.B. Este relatório não foi escrito ao abrigo do novo Acordo Ortográfico.}}
+
+
 \appendix
 \section{Map}
 \centerline{\includegraphics[angle=90, scale=0.40]{../files/images/map.png}}
