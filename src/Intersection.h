@@ -1,11 +1,7 @@
-/*
- * Intersection.h
- */
-
 #ifndef Intersection_H_
 #define Intersection_H_
 
-using namespace std;
+#include <iostream>
 
 const unsigned char INTERSECTION = 0;
 const unsigned char HOME = 1;
@@ -17,8 +13,8 @@ class Intersection {
 public:
 	Intersection(unsigned int id, unsigned char type);
 	unsigned int getID() const;
-	bool operator == (const Intersection &v2) const;
-	//friend ostream & operator << (ostream &os, Intersection &v);
+	bool operator ==(const Intersection &v2) const;
+	friend std::ostream & operator <<(std::ostream &os, const Intersection &v);
 };
 
-#endif /* Intersection_H_ */
+#endif

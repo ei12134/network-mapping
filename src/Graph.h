@@ -1,11 +1,9 @@
-/*
- * Graph.h
- */
 #ifndef GRAPH_H_
 #define GRAPH_H_
 
 #include <vector>
 #include <queue>
+
 using namespace std;
 
 template<class T> class Edge;
@@ -21,17 +19,13 @@ public:
 	friend class Graph<T> ;
 	void addEdge(Vertex<T> *dest, double w);
 	bool removeEdge(Vertex<T> *dest);
+	void print() const;
 };
-
-template<class T>
-Vertex<T>::Vertex(T in) :
-		info(in), visited(false) {
-}
 
 template<class T>
 class Edge {
 	Vertex<T> * dest;
-	double weight;
+	double distance;
 public:
 	Edge(Vertex<T> *d, double w);
 	friend class Graph<T> ;
@@ -39,40 +33,79 @@ public:
 };
 
 template<class T>
-Edge<T>::Edge(Vertex<T> *d, double w) :
-		dest(d), weight(w) {
-}
-
-template<class T>
 class Graph {
 	vector<Vertex<T> *> vertexSet;
 public:
 	vector<Vertex<T> *> getVertexSet() const;
+	vector<T> dfs() const;
+	vector<T> bfs(Vertex<T> *v) const;
 	int getNumVertex() const;
+	int maxNewChildren(Vertex<T> *v, T &inf) const;
 	bool addVertex(const T & in);
 	bool addEdge(const T & sourc, const T & dest, double w);
 	bool removeVertex(const T &in);
 	bool removeEdge(const T &sourc, const T &dest);
-	vector<T> dfs() const;
 	void dfs(Vertex<T> *v, vector<T> & dS) const;
-	vector<T> bfs(Vertex<T> *v) const;
-	int maxNewChildren(Vertex<T> *v, T &inf) const;
-
-	void clean();
+	void print() const;
+	void clear();
+	~Graph();
 };
 
+#include "Graph.h"
+
 template<class T>
-void Graph<T>::clean() {
-	for (unsigned x = 0 ; x < vertexSet.size() ; x++) {
+Vertex<T>::Vertex(T in) :
+		info(in), visited(false) {
+}
+
+template<class T>
+bool Vertex<T>::removeEdge(Vertex<T> *dest) {
+	for (size_t i = 0; i < adj.size(); i++) {
+		if (adj[i].dest->info.getID() == dest->info.getID()) {
+			adj.erase(adj.begin() + i);
+			return true;
+		}
+	}
+	return false;
+}
+
+template<class T>
+void Vertex<T>::addEdge(Vertex<T> *dest, double w) {
+	Edge<T> edgeD(dest, w);
+	adj.push_back(edgeD);
+}
+
+template<class T>
+void Vertex<T>::print() const {
+	for (size_t i = 0; i < adj.size(); i++) {
+		cout << info << " " << (adj[i].dest)->info << " " << adj[i].distance
+				<< "\n";
+	}
+}
+
+template<class T>
+Edge<T>::Edge(Vertex<T> *d, double w) :
+		dest(d), distance(w) {
+}
+
+template<class T>
+void Graph<T>::clear() {
+	for (unsigned x = 0; x < vertexSet.size(); x++) {
 		delete vertexSet[x];
 	}
 	vertexSet.clear();
 }
 
 template<class T>
+Graph<T>::~Graph() {
+	clear();
+}
+
+template<class T>
 int Graph<T>::getNumVertex() const {
 	return vertexSet.size();
 }
+
 template<class T>
 vector<Vertex<T> *> Graph<T>::getVertexSet() const {
 	return vertexSet;
@@ -90,12 +123,6 @@ bool Graph<T>::addVertex(const T & in) {
 }
 
 template<class T>
-void Vertex<T>::addEdge(Vertex<T> *dest, double w) {
-	Edge<T> edgeD(dest, w);
-	adj.push_back(edgeD);
-}
-
-template<class T>
 bool Graph<T>::addEdge(const T & sourc, const T & dest, double w) {
 	int sourceIndex = -1;
 	int destIndex = -1;
@@ -109,22 +136,12 @@ bool Graph<T>::addEdge(const T & sourc, const T & dest, double w) {
 		return false;
 
 	for (size_t i = 0; i < vertexSet[sourceIndex]->adj.size(); i++)
-		if (vertexSet[destIndex]->info.getID() == vertexSet[sourceIndex]->adj[i].dest->info.getID())
+		if (vertexSet[destIndex]->info.getID()
+				== vertexSet[sourceIndex]->adj[i].dest->info.getID())
 			return false;
 
 	vertexSet[sourceIndex]->addEdge(vertexSet[destIndex], w);
 	return true;
-}
-
-template<class T>
-bool Vertex<T>::removeEdge(Vertex<T> *dest) {
-	for (size_t i = 0; i < adj.size(); i++) {
-		if (adj[i].dest->info.getID() == dest->info.getID()) {
-			adj.erase(adj.begin() + i);
-			return true;
-		}
-	}
-	return false;
 }
 
 template<class T>
@@ -253,4 +270,12 @@ int Graph<T>::maxNewChildren(Vertex<T> *v, T &inf) const {
 	return maxChildren;
 }
 
-#endif /* GRAPH_H_ */
+template<class T>
+void Graph<T>::print() const {
+	cout << "Printing edges\n\n";
+	cout << "src  dst  distance\n";
+	for (size_t i = 0; i < vertexSet.size(); i++) {
+		vertexSet[i]->print();
+	}
+}
+#endif

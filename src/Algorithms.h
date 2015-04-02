@@ -1,7 +1,3 @@
-/*
- * Algorithms.h
- */
-
 #ifndef Algorithms_H_
 #define Algorithms_H_
 
@@ -10,23 +6,25 @@
 #include <string>
 #include <sstream>
 
-#include "Graph.h"
-#include "Intersection.h"
 #include "Exception.h"
+#include "Intersection.h"
+#include "Graph.h"
+
+#define DEFAULT_VERTEXES_FILE "vertexes.csv"
+#define DEFAULT_EDGES_FILE "edges.csv"
 
 using namespace std;
+
 class Algorithms {
 private:
 	Graph<Intersection> graph;
-
-	bool readVertex(const char *filePath);
-	bool readEdges(const char *filePath);
-
+	void readVertexes(const char *filePath);
+	void readEdges(const char *filePath);
 public:
-	Algorithms(){};
-
-	void loadData(const char * vertexPath,const char * edgesPath);
+	Algorithms();
+	void loadData(const char * vertexPath, const char * edgesPath);
 	void saveData();
+	void print();
 };
 
-#endif /* Algorithms_H_ */
+#endif
