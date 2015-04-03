@@ -24,7 +24,7 @@ public:
 	Algorithms();
 	void loadData(const char * vertexPath, const char * edgesPath);
 	void saveData();
-	void print();
+	vector<string> print();
 };
 
 #endif

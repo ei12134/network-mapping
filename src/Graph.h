@@ -19,7 +19,7 @@ public:
 	friend class Graph<T> ;
 	void addEdge(Vertex<T> *dest, double w);
 	bool removeEdge(Vertex<T> *dest);
-	void print() const;
+	vector<string> print() const;
 };
 
 template<class T>
@@ -39,6 +39,7 @@ public:
 	vector<Vertex<T> *> getVertexSet() const;
 	vector<T> dfs() const;
 	vector<T> bfs(Vertex<T> *v) const;
+	vector<string> print() const;
 	int getNumVertex() const;
 	int maxNewChildren(Vertex<T> *v, T &inf) const;
 	bool addVertex(const T & in);
@@ -46,7 +47,6 @@ public:
 	bool removeVertex(const T &in);
 	bool removeEdge(const T &sourc, const T &dest);
 	void dfs(Vertex<T> *v, vector<T> & dS) const;
-	void print() const;
 	void clear();
 	~Graph();
 };
@@ -76,11 +76,17 @@ void Vertex<T>::addEdge(Vertex<T> *dest, double w) {
 }
 
 template<class T>
-void Vertex<T>::print() const {
+vector<string> Vertex<T>::print() const {
+	vector<string> p;
+
 	for (size_t i = 0; i < adj.size(); i++) {
-		cout << info << " " << (adj[i].dest)->info << " " << adj[i].distance
-				<< "\n";
+		stringstream ss;
+		ss.clear();
+		ss << "\t  " << info << "\t\t\t  " << (adj[i].dest)->info << "\t\t\t  "
+				<< adj[i].distance << " m";
+		p.push_back(ss.str());
 	}
+	return p;
 }
 
 template<class T>
@@ -271,11 +277,14 @@ int Graph<T>::maxNewChildren(Vertex<T> *v, T &inf) const {
 }
 
 template<class T>
-void Graph<T>::print() const {
-	cout << "Printing edges\n\n";
-	cout << "src  dst  distance\n";
+vector<string> Graph<T>::print() const {
+	vector<string> p;
 	for (size_t i = 0; i < vertexSet.size(); i++) {
-		vertexSet[i]->print();
+		vector<string> v = vertexSet[i]->print();
+		for (size_t j = 0; j < v.size(); j++)
+			p.push_back(v[j]);
+		v.clear();
 	}
+	return p;
 }
 #endif

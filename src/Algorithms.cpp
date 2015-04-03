@@ -113,6 +113,7 @@ void Algorithms::readEdges(const char *filePath) {
 	file.close();
 }
 
-void Algorithms::print(){
-	graph.print();
+vector<string> Algorithms::print(){
+	vector<string> p = graph.print();
+	return p;
 }
