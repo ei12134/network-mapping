@@ -1,11 +1,19 @@
 #include "Intersection.h"
 
-Intersection::Intersection(unsigned int id, unsigned char type) :
-		id(id), type(type) {
+Intersection::Intersection(int id, int x, int y, unsigned char type) :
+		id(id), x(x), y(y), type(type) {
 }
 
-unsigned int Intersection::getID() const {
+int Intersection::getID() const {
 	return id;
+}
+
+int Intersection::getX() const{
+	return x;
+}
+
+int Intersection::getY() const{
+	return y;
 }
 
 bool Intersection::operator ==(const Intersection &i2) const {

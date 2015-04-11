@@ -20,6 +20,8 @@ public:
 	void addEdge(Vertex<T> *dest, double w);
 	bool removeEdge(Vertex<T> *dest);
 	vector<string> print() const;
+
+	friend class Cli;
 };
 
 template<class T>
@@ -30,6 +32,8 @@ public:
 	Edge(Vertex<T> *d, double w);
 	friend class Graph<T> ;
 	friend class Vertex<T> ;
+
+	friend class Cli;
 };
 
 template<class T>

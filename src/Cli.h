@@ -136,6 +136,9 @@ public:
 	}
 
 	void menu();
+
+	void graphViewer(Graph<Intersection> graph);
+
 	int displayContainer(vector<string> vec, string listName, string labels,
 			string sortStr);
 };

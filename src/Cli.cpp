@@ -354,8 +354,8 @@ void Cli::displayHeader(string& header) {
 void Cli::menu() {
 	char input;
 	bool exit = false;
-	const size_t menuCmdsSize = 3;
-	string menuCmds[menuCmdsSize] = { "Build graph", "Display\n", "Quit" };
+	const size_t menuCmdsSize = 4;
+	string menuCmds[menuCmdsSize] = { "Build graph","GraphViewer", "Display\n", "Quit" };
 	string spacing = string((WIDTH - menuCmds[0].size() - 4) / 2, ' ');
 	string exitMsg = "Quit?";
 	string headerMsg = "Telefones";
@@ -384,10 +384,13 @@ void Cli::menu() {
 			infMsg = " The graph was successfully built ";
 			break;
 		case '2':
+			graphViewer(alg.getGraph());
+			break;
+		case '3':
 			displayContainer(alg.print(), "Graph", "\tSource\t\t\tDestiny\t\t\tDistance",
 					"");
 			break;
-		case '3':
+		case '4':
 			if (confirmOperation(false, "", exitMsg, CLI_RED, true, CLI_BLACK, false,
 					0))
 				exit = true;
@@ -485,7 +488,27 @@ int Cli::displayContainer(vector<string> vec, string listName, string labels,
 }
 
 
+void Cli::graphViewer(Graph<Intersection> graph){
+	GraphViewer *gv = new GraphViewer(1024, 768, false);
 
+// Create windows and define colours
+	gv->createWindow(1024, 768);
+	gv->defineVertexColor("blue");
+	gv->defineEdgeColor("black");
+
+	vector<Vertex<Intersection> *> vertexSet = graph.getVertexSet();
+
+	for (size_t i = 0; i < vertexSet.size(); i++) {
+		Intersection temp = vertexSet[i]->info;
+		gv->addNode(temp.getID(),temp.getX()*4,temp.getY()*4);			
+	}
+	int counter = 0;
+	for (size_t x = 0; x < vertexSet.size(); x++)
+		for (size_t i = 0; i < vertexSet[x]->adj.size(); i++)
+			gv->addEdge(counter++, vertexSet[x]->info.getID(), vertexSet[x]->adj[i].dest->info.getID(), EdgeType::UNDIRECTED);
+	
+	gv->rearrange();
+}
 
 /*
 

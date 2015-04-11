@@ -22,6 +22,9 @@ private:
     void readEdges(const char *filePath);
 public:
     Algorithms();
+
+    Graph<Intersection> getGraph();
+
     void loadData(const char * vertexPath, const char * edgesPath);
     void saveData();
     vector<string> print();

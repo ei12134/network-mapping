@@ -8,11 +8,15 @@ const unsigned char HOME = 1;
 const unsigned char CENTRAL = 2;
 
 class Intersection {
-	unsigned int id;
+	int id;
+	int x, y;
 	const unsigned char type;
 public:
-	Intersection(unsigned int id, unsigned char type);
-	unsigned int getID() const;
+	Intersection(int id,int x,int y, unsigned char type);
+	int getID() const;
+	int getX() const;
+	int getY() const;
+
 	bool operator ==(const Intersection &v2) const;
 	friend std::ostream & operator <<(std::ostream &os, const Intersection &v);
 };
