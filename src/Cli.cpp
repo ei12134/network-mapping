@@ -3,21 +3,21 @@
 Cli::Cli() {
 
 	// normal text colour
-	strFg = GREEN;
+	strFg = CLI_GREEN;
 	strFgI = true;
-	strBg = BLACK;
+	strBg = CLI_BLACK;
 	strBgI = false;
 
 	// information colour
-	infFg = BLACK;
+	infFg = CLI_BLACK;
 	infFgI = false;
-	infBg = GRAY;
+	infBg = CLI_GRAY;
 	infBgI = true;
 
 	// error messages colour
-	errFg = GRAY;
+	errFg = CLI_GRAY;
 	errFgI = true;
-	errBg = RED;
+	errBg = CLI_RED;
 	errBgI = false;
 
 	setConsole();
@@ -143,7 +143,7 @@ void Cli::setConsole() {
 	SetConsoleWindowInfo(hConsoleOutput, TRUE, &Rect);
 	SetConsoleScreenBufferSize(hConsoleOutput, coord);
 	SetConsoleTitleA("Cli");
-	setColor(GRAY,false,BLACK,false);
+	setColor(CLI_GRAY,false,CLI_BLACK,false);
 #else
 	setColor(strFg, strFgI, strBg, strBgI);
 	cout << string(30, '\n');
@@ -254,7 +254,7 @@ char Cli::getKey() {
 void Cli::resetColor() {
 #if defined(_WIN32) || defined(_WIN64)
 	SetConsoleTextAttribute(hConsoleOutput,
-			FOREGROUND_GREEN | FOREGROUND_INTENSITY | 0 | 0 | 0);
+			FOREGROUND_CLI_GREEN | FOREGROUND_INTENSITY | 0 | 0 | 0);
 #else
 	cout << "\033[" << strFgI << ";" << 40 + strBg + (60 * strBgI)
 				<< ";" << 30 + strFg << "m";
@@ -388,12 +388,12 @@ void Cli::menu() {
 					"");
 			break;
 		case '3':
-			if (confirmOperation(false, "", exitMsg, RED, true, BLACK, false,
+			if (confirmOperation(false, "", exitMsg, CLI_RED, true, CLI_BLACK, false,
 					0))
 				exit = true;
 			break;
 		case ESCAPE_KEY:
-			if (confirmOperation(false, "", exitMsg, RED, true, BLACK, false,
+			if (confirmOperation(false, "", exitMsg, CLI_RED, true, CLI_BLACK, false,
 					0))
 				exit = true;
 			break;
@@ -404,82 +404,131 @@ void Cli::menu() {
 }
 
 int Cli::displayContainer(vector<string> vec, string listName, string labels,
-		string sortStr) {
-	unsigned int vecSize = vec.size(), pCount = 1, vLimit = 0, i = 0, progress;
-	float pLimit;
-	bool done = false;
-	char key;
-	string vLimitMsg;
-	string sortedMsg;
-	if (sortStr.size() > 0) {
-		sortedMsg = "Sorted by " + sortStr
-				+ (sortStr.size() > 5 ? +TAB : +TWO_TABS);
-		vLimitMsg =
-				" [ESC] to interrupt [s] to sort or any other key to continue...";
-	} else
-		vLimitMsg = " [ESC] to interrupt or any other key to continue...";
-	if (vecSize == 0)
-		pLimit = 1;
-	else
-		pLimit = ceil(static_cast<float>(vecSize) / MAX_LINES);
-	while (1) {
-		do {
-			vLimit = 0;
-			progress = ceil((13.0 / pLimit) * pCount);
-			clearScreen();
-			displayHeader(listName);
-			ostringstream progrStr;
-			progrStr << sortedMsg << "Page " << pCount << " of " << pLimit
-
-			<< " [" << repeatStr(progressBar, progress)
-					<< string((13 - progress), ' ') << "]";
-			if (sortStr.size() == 0) {
-				cout << THREE_TABS << progrStr.str();
-			} else {
-				cout << TWO_TABS << progrStr.str();
-			}
-			cout << endl << endl;
-			cout << " " << repeatStr(hSeparator, 77) << " " << endl;
-			cout << " " << labels << endl;
-			cout << " " << repeatStr(hSeparator, 77) << " " << endl;
-			if (vecSize == 0) {
-				string nothing = " Nothing to show here :( ";
-				cout << string(5, '\n');
-				errorMsg(nothing, 0);
-				cout << string(6, '\n');
-			}
-			while (vLimit < MAX_LINES && i < vecSize && !done) {
-				setColor(GRAY, true, BLACK, false);
-				cout << " " << vec[i];
-				resetColor();
-				cout << endl;
-				i++;
-				vLimit++;
-				if (vLimit == MAX_LINES && i < vecSize) {
-					pCount++;
-					cout << " " << repeatStr(hSeparator, 77) << endl
-							<< vLimitMsg;
-					key = getKey();
-					if (key == ESCAPE_KEY)
-						done = true;
-					else if (tolower(key) == 's' && sortStr.size() > 0) {
-						return -1;
-					}
-				}
-			}
-			if (vecSize != 0)
-				cout << string((MAX_LINES - vLimit), '\n');
-		} while (i < vecSize && !done);
-		if (done)
-			break;
-		else if (i == vecSize) {
-			cout << " " << repeatStr(hSeparator, 77) << endl << vLimitMsg;
-			key = getKey();
-			if (tolower(key) == 's' && sortStr.size() > 0) {
-				return -1;
-			} else
-				break;
+			string sortStr) {
+    unsigned int vecSize = vec.size(), pCount = 1, vLimit = 0, i = 0, progress;
+    float pLimit;
+    bool done = false;
+    char key;
+    string vLimitMsg;
+    string sortedMsg;
+    if (sortStr.size() > 0) {
+	sortedMsg = "Sorted by " + sortStr
+	+ (sortStr.size() > 5 ? +TAB : +TWO_TABS);
+	vLimitMsg =
+	" [ESC] to interrupt [s] to sort or any other key to continue...";
+    } else
+	vLimitMsg = " [ESC] to interrupt or any other key to continue...";
+    if (vecSize == 0)
+	pLimit = 1;
+    else
+	pLimit = ceil(static_cast<float>(vecSize) / MAX_LINES);
+    while (1) {
+	do {
+	    vLimit = 0;
+	    progress = ceil((13.0 / pLimit) * pCount);
+	    clearScreen();
+	    displayHeader(listName);
+	    ostringstream progrStr;
+	    progrStr << sortedMsg << "Page " << pCount << " of " << pLimit
+	    
+	    << " [" << repeatStr(progressBar, progress)
+	    << string((13 - progress), ' ') << "]";
+	    if (sortStr.size() == 0) {
+		cout << THREE_TABS << progrStr.str();
+	    } else {
+		cout << TWO_TABS << progrStr.str();
+	    }
+	    cout << endl << endl;
+	    cout << " " << repeatStr(hSeparator, 77) << " " << endl;
+	    cout << " " << labels << endl;
+	    cout << " " << repeatStr(hSeparator, 77) << " " << endl;
+	    if (vecSize == 0) {
+		string nothing = " Nothing to show here :( ";
+		cout << string(5, '\n');
+		errorMsg(nothing, 0);
+		cout << string(6, '\n');
+	    }
+	    while (vLimit < MAX_LINES && i < vecSize && !done) {
+		setColor(CLI_GRAY, true, CLI_BLACK, false);
+		cout << " " << vec[i];
+		resetColor();
+		cout << endl;
+		i++;
+		vLimit++;
+		if (vLimit == MAX_LINES && i < vecSize) {
+		    pCount++;
+		    cout << " " << repeatStr(hSeparator, 77) << endl
+		    << vLimitMsg;
+		    key = getKey();
+		    if (key == ESCAPE_KEY)
+			done = true;
+		    else if (tolower(key) == 's' && sortStr.size() > 0) {
+			return -1;
+		    }
 		}
+	    }
+	    if (vecSize != 0)
+		cout << string((MAX_LINES - vLimit), '\n');
+	} while (i < vecSize && !done);
+	if (done)
+	    break;
+	else if (i == vecSize) {
+	    cout << " " << repeatStr(hSeparator, 77) << endl << vLimitMsg;
+	    key = getKey();
+	    if (tolower(key) == 's' && sortStr.size() > 0) {
+		return -1;
+	    } else
+		break;
 	}
-	return 0;
+    }
+    return 0;
 }
+
+
+
+
+/*
+
+void displaygraph() {
+	GraphViewer *gv = new GraphViewer(1024, 768, true);
+
+	int idNo0 = 0, idNo1 = 1, idNo2 = 2;
+	int idAresta0 = 0, idAresta1 = 1;
+
+// Add wallpaper
+	gv->setBackground("background.jpg");
+
+// Create windows and define colours
+	gv->createWindow(1024, 768);
+	gv->defineVertexColor("blue");
+	gv->defineEdgeColor("black");
+
+// Add nodes to the graph
+	gv->addNode(idNo0);
+	gv->addNode(idNo1);
+	gv->addNode(idNo2);
+
+// Add bidirectional edge
+	gv->addEdge(idAresta0, idNo0, idNo1, EdgeType::UNDIRECTED);
+
+// Remove node
+	gv->removeNode(idNo1);
+
+// Add unidirectional edge
+	gv->addEdge(idAresta1, idNo0, idNo2, EdgeType::DIRECTED);
+
+// Add label to vertex
+	gv->setVertexLabel(idNo2, "Isto e um no");
+
+// Add label to edge
+	gv->setEdgeLabel(idAresta1, "Isto e uma aresta");
+
+// Set vertex colour
+	gv->setVertexColor(idNo2, "green");
+	gv->setEdgeColor(idAresta1, "yellow");
+
+// Updates the graph display contents
+	gv->rearrange();
+}*/
+
+

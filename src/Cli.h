@@ -2,7 +2,9 @@
 #define CLI_H_
 
 #include <cstdlib>
+#include <cstdio>
 #include <fstream>
+#include <sstream>
 #include <iostream>
 #include <math.h>
 #include <stdio.h>
@@ -10,18 +12,19 @@
 #include <vector>
 
 #include "Algorithms.h"
+#include "graphviewer.h"
 using namespace std;
 
 #ifdef _WIN32
 
-#define BLACK 0
-#define BLUE 1
-#define GREEN 2
-#define CYAN BLUE | GREEN
-#define RED 4
-#define YELLOW GREEN | RED
-#define MAGENTA BLUE | RED
-#define GRAY BLUE | GREEN | RED
+#define CLI_BLACK 0
+#define CLI_BLUE 1
+#define CLI_GREEN 2
+#define CLI_CYAN CLI_BLUE | CLI_GREEN
+#define CLI_RED 4
+#define CLI_YELLOW CLI_GREEN | CLI_RED
+#define CLI_MAGENTA CLI_BLUE | CLI_RED
+#define CLI_GRAY CLI_BLUE | CLI_GREEN | CLI_RED
 
 #define BACKSPACE_KEY 8
 #define RETURN_KEY 13
@@ -37,14 +40,14 @@ static const char progressBar = 254;
 #include <termios.h>    //termios, TCSANOW, ECHO, ICANON
 #include <unistd.h>     //STDIN_FILENO
 
-#define BLACK 0
-#define RED 1
-#define GREEN 2
-#define YELLOW GREEN | RED
-#define BLUE 4
-#define MAGENTA BLUE | RED
-#define CYAN BLUE | GREEN
-#define GRAY BLUE | GREEN | RED
+#define CLI_BLACK 0
+#define CLI_RED 1
+#define CLI_GREEN 2
+#define CLI_YELLOW CLI_GREEN | CLI_RED
+#define CLI_BLUE 4
+#define CLI_MAGENTA CLI_BLUE | CLI_RED
+#define CLI_CYAN CLI_BLUE | CLI_GREEN
+#define CLI_GRAY CLI_BLUE | CLI_GREEN | CLI_RED
 
 #define BACKSPACE_KEY 127
 #define RETURN_KEY 10

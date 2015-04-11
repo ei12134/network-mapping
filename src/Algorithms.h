@@ -17,14 +17,14 @@ using namespace std;
 
 class Algorithms {
 private:
-	Graph<Intersection> graph;
-	void readVertexes(const char *filePath);
-	void readEdges(const char *filePath);
+    Graph<Intersection> graph;
+    void readVertexes(const char *filePath);
+    void readEdges(const char *filePath);
 public:
-	Algorithms();
-	void loadData(const char * vertexPath, const char * edgesPath);
-	void saveData();
-	vector<string> print();
+    Algorithms();
+    void loadData(const char * vertexPath, const char * edgesPath);
+    void saveData();
+    vector<string> print();
 };
 
 #endif
