@@ -133,3 +133,29 @@ vector<string> Algorithms::printEdges(){
     vector<string> p = graph.print(true);
     return p;
 }
+
+void Algorithms::setArea(double area){
+    this->area = area;
+    this->radius = sqrt(area/PI);
+}
+
+void Algorithms::setRadius(double radius){
+    this->radius = radius;
+    this->area = radius * radius * PI;
+}
+
+double Algorithms::getArea() const{
+    return area;
+}
+
+double Algorithms::getRadius() const{
+    return radius;
+}
+
+inline bool is_Not_Number(const int & c) {
+    return !(c >= 48 && c <= 57);
+}
+
+bool is_All_Number(const string& s) {
+    return find_if(s.begin(), s.end(), is_Not_Number) == s.end();
+}

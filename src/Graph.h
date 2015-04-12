@@ -50,8 +50,8 @@ public:
 	bool addEdge(const T & sourc, const T & dest, double w);
 	bool removeVertex(const T &in);
 	bool removeEdge(const T &sourc, const T &dest);
-	bool hasCycle() const;
-	bool hasCycle(Vertex<T>* v) const;
+	bool acyclic() const;
+	void acyclic(Vertex<T>* v, bool& cycle) const;
 	void dfs(Vertex<T> *v, vector<T> & dS) const;
 	void clear();
 	~Graph();
@@ -94,7 +94,7 @@ vector<string> Vertex<T>::print(bool edges) const {
     }
     else{
 	stringstream ss;
-	ss << "\t" << info.getId() << "\t\t\t" << info.getX() << "\t\t"<< info.getX() << "\t\t    " << info.getType();
+	ss << "\t\t" << info.getId() << "\t\t" << info.getX() << "\t\t"<< info.getX() << "\t\t" << info.getType();
 	p.push_back(ss.str());
     }
     return p;
@@ -206,30 +206,29 @@ bool Graph<T>::removeEdge(const T &sourc, const T &dest) {
 }
 
 template<class T>
-bool Graph<T>::hasCycle() const{
+bool Graph<T>::acyclic() const{
+    bool cycle = true;
+    
     for (size_t i = 0; i < vertexSet.size(); i++) {
 	vertexSet[i]->visited = false;
     }
     for (size_t i = 0; i < vertexSet.size(); i++) {
 	if (!vertexSet[i]->visited){
-	    if(hasCycle(vertexSet[i]))
-		return true;
+	    acyclic(vertexSet[i],cycle);
 	}
     }
-    return false;
+    return cycle;
 }
 
-
 template<class T>
-bool Graph<T>::hasCycle(Vertex<T>* v) const {
+void Graph<T>::acyclic(Vertex<T>* v, bool& cycle) const {
     v->visited = true;
     for (size_t i = 0; i < v->adj.size(); i++) {
 	if (!v->adj[i].dest->visited)
-	    return hasCycle(v->adj[i].dest);
+	    return acyclic(v->adj[i].dest,cycle);
 	else
-	    return true;
+	    cycle = false;
     }
-    return false;
 }
 
 template<class T>

@@ -3,15 +3,14 @@
 
 using namespace std;
 int main() {
-
-//	Cli c(BLACK, false, GRAY, true, GRAY, true, BLUE, false, GRAY, true, RED,
-//			false);
-
-//	Cli c(GRAY, true, BLACK, false, GRAY, false, BLUE, false, GRAY, true, RED,
-//			false);
-	Cli c;
-
-	c.menu();
+    
+    //	Cli c(BLACK, false, GRAY, true, GRAY, true, BLUE, false, GRAY, true, RED,
+    //			false);
+    
+    //	Cli c(GRAY, true, BLACK, false, GRAY, false, BLUE, false, GRAY, true, RED,
+    //			false);
+    Cli c;
+    c.menu();
 }
 
 //#include <iostream>

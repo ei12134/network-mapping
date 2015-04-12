@@ -5,6 +5,9 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <math.h>
+#include <algorithm>
+#include <vector>
 
 #include "Exception.h"
 #include "Intersection.h"
@@ -13,11 +16,19 @@
 #define DEFAULT_VERTICES_FILE "vertices.csv"
 #define DEFAULT_EDGES_FILE "edges.csv"
 
+static const double PI = 3.141592653589793;
+
 using namespace std;
+
+    inline bool is_Not_Number(const int & c);
+    bool is_All_Number(const string& s);
 
 class Algorithms {
 private:
+    double radius;
+    double area;
     Graph<Intersection> graph;
+    Graph<Intersection> stGraph;
     void readVertexes(const char *filePath);
     void readEdges(const char *filePath);
 public:
@@ -27,6 +38,10 @@ public:
     void saveData();
     vector<string> printVertices();
     vector<string> printEdges();
+    void setArea(double area);
+    void setRadius(double radius);
+    double getArea() const;
+    double getRadius() const;
 };
 
 #endif

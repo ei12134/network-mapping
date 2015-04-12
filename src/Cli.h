@@ -143,6 +143,7 @@ public:
 
 	int displayContainer(vector<string> vec, string listName, string labels,
 			string sortStr);
+	bool readArea();
 };
 
 #endif /* CLI_H_ */
