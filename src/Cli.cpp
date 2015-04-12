@@ -254,7 +254,7 @@ char Cli::getKey() {
 void Cli::resetColor() {
 #if defined(_WIN32) || defined(_WIN64)
 	SetConsoleTextAttribute(hConsoleOutput,
-			FOREGROUND_CLI_GREEN | FOREGROUND_INTENSITY | 0 | 0 | 0);
+			FOREGROUND_GREEN | FOREGROUND_INTENSITY | 0 | 0 | 0);
 #else
 	cout << "\033[" << strFgI << ";" << 40 + strBg + (60 * strBgI)
 				<< ";" << 30 + strFg << "m";
@@ -399,7 +399,7 @@ void Cli::menu() {
 		    if (graph.getVertexSet().size() != 0){
 			graphViewer(alg.getGraph());
 			getKey();
-			gv->closeWindow();
+			//gv->closeWindow();
 		    }
 		    else
 			errMsg = " Empty or invalid graph ";
