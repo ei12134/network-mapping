@@ -3,22 +3,22 @@
 
 #include <iostream>
 
-const unsigned char INTERSECTION = 0;
-const unsigned char HOME = 1;
-const unsigned char CENTRAL = 2;
+static const unsigned char INTERSECTION = 0;
+static const unsigned char HOME = 1;
+static const unsigned char CENTRAL = 2;
 
 class Intersection {
-	int id;
-	int x, y;
-	const unsigned char type;
+    int id;
+    int x, y;
+    unsigned char type;
 public:
-	Intersection(int id,int x,int y, unsigned char type);
-	int getID() const;
-	int getX() const;
-	int getY() const;
-
-	bool operator ==(const Intersection &v2) const;
-	friend std::ostream & operator <<(std::ostream &os, const Intersection &v);
+    Intersection(int id, int x, int y, unsigned char type);
+    int getId() const;
+    int getX() const;
+    int getY() const;
+    unsigned char getType() const;
+    bool operator ==(const Intersection &v2) const;
+    friend std::ostream & operator <<(std::ostream &os, const Intersection &v);
 };
 
 #endif

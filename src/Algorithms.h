@@ -10,7 +10,7 @@
 #include "Intersection.h"
 #include "Graph.h"
 
-#define DEFAULT_VERTEXES_FILE "vertexes.csv"
+#define DEFAULT_VERTICES_FILE "vertices.csv"
 #define DEFAULT_EDGES_FILE "edges.csv"
 
 using namespace std;
@@ -21,13 +21,12 @@ private:
     void readVertexes(const char *filePath);
     void readEdges(const char *filePath);
 public:
-    Algorithms();
-
-    Graph<Intersection> getGraph();
-
+    Graph<Intersection> getGraph() const;
+    void setGraph(Graph<Intersection> graph);
     void loadData(const char * vertexPath, const char * edgesPath);
     void saveData();
-    vector<string> print();
+    vector<string> printVertices();
+    vector<string> printEdges();
 };
 
 #endif

@@ -3,9 +3,9 @@
 #include<sstream>
 
 #ifdef linux
-pid_t GraphViewer::procId = NULL;
+pid_t GraphViewer::procId; // = NULL
 #endif
-short GraphViewer::port = 7777;
+short GraphViewer::port = 7773;
 
 GraphViewer::GraphViewer(int width, int height, bool dynamic) {
 	initialize(width, height, dynamic, GraphViewer::port);

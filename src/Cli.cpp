@@ -208,23 +208,23 @@ char Cli::getKey() {
 	static struct termios oldt, newt;
 
 	/*tcgetattr gets the parameters of the current terminal
-	 STDIN_FILENO will tell tcgetattr that it should write the settings
-	 of stdin to oldt*/
+	STDIN_FILENO will tell tcgetattr that it should write the settings
+	of stdin to oldt*/
 	tcgetattr( STDIN_FILENO, &oldt);
 	/*now the settings will be copied*/
 	newt = oldt;
 
 	/*ICANON normally takes care that one line at a time will be processed
-	 that means it will return if it sees a "\n" or an EOF or an EOL*/
+	that means it will return if it sees a "\n" or an EOF or an EOL*/
 	newt.c_lflag &= ~(ICANON | ECHO);
 
 	/*Those new settings will be set to STDIN
-	 TCSANOW tells tcsetattr to change attributes immediately. */
+	TCSANOW tells tcsetattr to change attributes immediately. */
 	tcsetattr( STDIN_FILENO, TCSANOW, &newt);
 
 	/*This is your part:
-	 I choose 'e' to end input. Notice that EOF is also turned off
-	 in the non-canonical mode*/
+	I choose 'e' to end input. Notice that EOF is also turned off
+	in the non-canonical mode*/
 	char keys[32] = { 0 };
 	fflush(stdout);
 	read(STDIN_FILENO, keys, 4096);
@@ -354,16 +354,18 @@ void Cli::displayHeader(string& header) {
 void Cli::menu() {
 	char input;
 	bool exit = false;
-	const size_t menuCmdsSize = 4;
-	string menuCmds[menuCmdsSize] = { "Build graph","GraphViewer", "Display\n", "Quit" };
-	string spacing = string((WIDTH - menuCmds[0].size() - 4) / 2, ' ');
+	const size_t menuCmdsSize = 6;
+	string menuCmds[menuCmdsSize] = { "Load graph","GraphViewer", "Information", "Vertices", "Edges\n", "Quit" };
+	string spacing = string((WIDTH - menuCmds[3].size() - 4) / 2, ' ');
 	string exitMsg = "Quit?";
 	string headerMsg = "Telefones";
-	string infMsg;
+	string infMsg, errMsg;
+	Graph<Intersection> graph;
 
 	do {
 		clearScreen();
 		displayHeader(headerMsg);
+		graph = alg.getGraph();
 
 		for (size_t i = 0; i < menuCmdsSize; i++)
 			cmdMsg(spacing, (i + 1), menuCmds[i], 1);
@@ -373,6 +375,10 @@ void Cli::menu() {
 			infoMsg(infMsg, 2);
 			infMsg.clear();
 		}
+		if (errMsg.size() > 0) {
+			errorMsg(errMsg, 2);
+			errMsg.clear();
+		}
 
 		coloredString(false, spacing, PROMPT_SYMBOL, strFg, strFgI, strBg,
 				strBgI, 0);
@@ -380,17 +386,34 @@ void Cli::menu() {
 		input = getKey();
 		switch (input) {
 		case '1':
-			alg.loadData(DEFAULT_VERTEXES_FILE, DEFAULT_EDGES_FILE);
+			alg.loadData(DEFAULT_VERTICES_FILE, DEFAULT_EDGES_FILE);
 			infMsg = " The graph was successfully built ";
 			break;
 		case '2':
+		    graph = alg.getGraph();
+		    if (graph.getVertexSet().size() != 0){
 			graphViewer(alg.getGraph());
-			break;
+			getKey();
+			gv->closeWindow();
+		    }
+		    else
+			errMsg = " Empty or invalid graph ";
+		    break;
 		case '3':
-			displayContainer(alg.print(), "Graph", "\tSource\t\t\tDestiny\t\t\tDistance",
+		    if (graph.getVertexSet().size() != 0)
+			graphInfo(graph);
+		    else
+			errMsg = " Empty or invalid graph ";
+		    break;
+		case '4':
+			displayContainer(alg.printVertices(), "Graph vertices", "\tId\t\t\tX\t\tY\t\t    Type",
 					"");
 			break;
-		case '4':
+		case '5':
+			displayContainer(alg.printEdges(), "Graph edges", "\tSource\t\t\tDestiny\t\t\tDistance",
+					"");
+			break;
+		case '6':
 			if (confirmOperation(false, "", exitMsg, CLI_RED, true, CLI_BLACK, false,
 					0))
 				exit = true;
@@ -488,26 +511,75 @@ int Cli::displayContainer(vector<string> vec, string listName, string labels,
 }
 
 
-void Cli::graphViewer(Graph<Intersection> graph){
-	GraphViewer *gv = new GraphViewer(1024, 768, false);
+void Cli::graphInfo(const Graph<Intersection>& graph){
+    string headerMsg = "Graph information";
+    
+     // Get statistical values from the graph
+    vector<Vertex<Intersection> *> vertexSet = graph.getVertexSet();
+    int totalVertices = vertexSet.size();
+    int totalEdges = 0;
+    double totalDistance = 0.0;
+    
+    for (size_t x = 0; x < vertexSet.size(); x++){
+	totalEdges += vertexSet[x]->adj.size();
+	for (size_t i = 0; i < vertexSet[x]->adj.size(); i++)
+	    totalDistance += vertexSet[x]->adj[i].distance;
+    }
+    
+    string cycles;
+    bool hcycle = graph.hasCycle();
+    if (hcycle)
+	cycles = "some";
+    else
+	cycles = "none";
+    
+    // Display data
+    clearScreen();
+    displayHeader(headerMsg);
+    
+    string spacing = THREE_TABS + HALF_TAB;
+    
+    coloredString(false, spacing, "Number of vertices: ", infBg, infBgI, infFg, infFgI, 0);
+    cout << totalVertices << "\n\n";
+    coloredString(false, spacing, "Number of edges: ", infBg, infBgI, infFg, infFgI, 0);
+    cout << totalEdges << "\n\n";
+    coloredString(false, spacing, "Total distance: ", infBg, infBgI, infFg, infFgI, 0);
+    cout << totalDistance << " m " << "\n\n";
+    coloredString(false, spacing, "Cycles: ", infBg, infBgI, infFg, infFgI, 0);
+    cout << cycles << "\n\n\n";
+    
+    coloredString(false, THREE_TABS, "Press any key to continue...", strFg, strFgI, strBg, strBgI,0);
+    
+    getKey();
+}
 
-// Create windows and define colours
-	gv->createWindow(1024, 768);
-	gv->defineVertexColor("blue");
-	gv->defineEdgeColor("black");
-
-	vector<Vertex<Intersection> *> vertexSet = graph.getVertexSet();
-
-	for (size_t i = 0; i < vertexSet.size(); i++) {
-		Intersection temp = vertexSet[i]->info;
-		gv->addNode(temp.getID(),temp.getX()*4,temp.getY()*4);			
-	}
-	int counter = 0;
-	for (size_t x = 0; x < vertexSet.size(); x++)
-		for (size_t i = 0; i < vertexSet[x]->adj.size(); i++)
-			gv->addEdge(counter++, vertexSet[x]->info.getID(), vertexSet[x]->adj[i].dest->info.getID(), EdgeType::UNDIRECTED);
-	
-	gv->rearrange();
+void Cli::graphViewer(const Graph<Intersection>& graph){
+    gv = new GraphViewer(800, 600, false);
+    
+    // Create windows and define colours
+    gv->createWindow(800, 600);
+    gv->defineVertexColor("blue");
+    gv->defineEdgeColor("black");
+    
+    vector<Vertex<Intersection> *> vertexSet = graph.getVertexSet();
+    
+    // Add nodes
+    for (size_t i = 0; i < vertexSet.size(); i++) {
+	Intersection temp = vertexSet[i]->info;
+	gv->addNode(temp.getId(),temp.getX(),temp.getY());
+	if (temp.getType() == CENTRAL)
+	    gv->setVertexColor(temp.getId(), "red");
+    }
+    
+    // Add edges
+    int counter = 0;
+    for (size_t x = 0; x < vertexSet.size(); x++){
+	for (size_t i = 0; i < vertexSet[x]->adj.size(); i++)
+	    gv->addEdge(counter++, vertexSet[x]->info.getId(), vertexSet[x]->adj[i].dest->info.getId(), EdgeType::UNDIRECTED);
+    }
+    
+    // Redraw
+    gv->rearrange();
 }
 
 /*

@@ -92,6 +92,8 @@ private:
 	Algorithms alg;
 	bool infBgI, infFgI, strBgI, strFgI, errBgI, errFgI;
 	int infBg, infFg, errBg, errFg, strBg, strFg;
+	
+	GraphViewer *gv;
 public:
 	Cli();
 	Cli(int newStrFg, bool newStrFgI, int newStrBg, bool newStrBgI,
@@ -136,8 +138,8 @@ public:
 	}
 
 	void menu();
-
-	void graphViewer(Graph<Intersection> graph);
+	void graphInfo(const Graph<Intersection>& graph);
+	void graphViewer(const Graph<Intersection>& graph);
 
 	int displayContainer(vector<string> vec, string listName, string labels,
 			string sortStr);
