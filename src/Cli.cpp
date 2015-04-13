@@ -572,6 +572,8 @@ void Cli::graphViewer(const Graph<Intersection>& graph){
 	gv->addNode(temp.getId(),temp.getX(),temp.getY());
 	if (temp.getType() == CENTRAL)
 	    gv->setVertexColor(temp.getId(), "red");
+	else if (temp.getType() == HOUSE)
+	    gv->setVertexColor(temp.getId(), "blue");
 	
 	// Add node label
 	ss << temp.getId();

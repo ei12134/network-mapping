@@ -20,8 +20,8 @@ static const double PI = 3.141592653589793;
 
 using namespace std;
 
-    inline bool is_Not_Number(const int & c);
-    bool is_All_Number(const string& s);
+inline bool is_Not_Number(const int & c);
+bool is_All_Number(const string& s);
 
 class Algorithms {
 private:

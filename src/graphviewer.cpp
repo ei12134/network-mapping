@@ -31,16 +31,16 @@ void GraphViewer::initialize(int width, int height, bool dynamic, int port_n) {
   if (!(procId = fork())) {
     system(command.c_str());
     kill(getppid(), SIGINT);
-    exit(0);
+    exit(0);  
   }
-  else {    
+  else {
     usleep(2000000);
     con = new Connection(port_n);
 
     char buff[200];
     sprintf(buff, "newGraph %d %d %s\n", width, height, (dynamic?"true":"false"));
     string str(buff);
-    con->sendMsg(str);
+    con->sendMsg(str);  
   }
 #else
   STARTUPINFO si;

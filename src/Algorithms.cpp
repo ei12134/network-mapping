@@ -12,7 +12,7 @@ void Algorithms::readVertexes(const char *filePath) {
     stringstream ss, cnv;
     int x,y;
     int id;
-    unsigned char type;
+    int type;
     
     file.open(filePath);
     if (file.is_open()) {
@@ -51,6 +51,7 @@ void Algorithms::readVertexes(const char *filePath) {
 		    throw Exception<string>("Error reading type", "Vertex");
 		cnv << sType;
 		cnv >> type;
+		cnv.clear();
 		
 		// add intersection to the graph
 		Intersection i(id,x,y,type);
@@ -109,6 +110,7 @@ void Algorithms::readEdges(const char *filePath) {
 		
 		// add edge to the graph
 		graph.addEdge(src, dst, distance);
+		//graph.addEdge(dst, src, distance);
 	    } catch (Exception<string> &e) {
 	    }
 	}

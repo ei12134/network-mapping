@@ -1,6 +1,6 @@
 #include "Intersection.h"
 
-Intersection::Intersection(int id, int x, int y, unsigned char type) :
+Intersection::Intersection(int id, int x, int y, int type) :
 id(id), x(x), y(y), type(type){
 }
 
@@ -16,7 +16,7 @@ int Intersection::getY() const{
     return y;
 }
 
-unsigned char Intersection::getType() const{
+int Intersection::getType() const{
     return type;
 }
 
