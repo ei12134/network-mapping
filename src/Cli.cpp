@@ -142,7 +142,7 @@ void Cli::setConsole() {
 	Rect.Right = WIDTH - 1;
 	SetConsoleWindowInfo(hConsoleOutput, TRUE, &Rect);
 	SetConsoleScreenBufferSize(hConsoleOutput, coord);
-	SetConsoleTitleA("Cli");
+	SetConsoleTitleA("Telefones");
 	setColor(CLI_GRAY,false,CLI_BLACK,false);
 #else
 	setColor(strFg, strFgI, strBg, strBgI);

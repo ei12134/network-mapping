@@ -207,7 +207,7 @@ bool Graph<T>::removeEdge(const T &sourc, const T &dest) {
 
 template<class T>
 bool Graph<T>::acyclic() const{
-    bool cycle = true;
+    bool cycle = false;
     
     for (size_t i = 0; i < vertexSet.size(); i++) {
 	vertexSet[i]->visited = false;
@@ -217,18 +217,23 @@ bool Graph<T>::acyclic() const{
 	    acyclic(vertexSet[i],cycle);
 	}
     }
-    return cycle;
+    return !cycle;
 }
 
 template<class T>
 void Graph<T>::acyclic(Vertex<T>* v, bool& cycle) const {
     v->visited = true;
     for (size_t i = 0; i < v->adj.size(); i++) {
-	if (!v->adj[i].dest->visited)
-	    return acyclic(v->adj[i].dest,cycle);
-	else
-	    cycle = false;
+	if (!v->adj[i].dest->visited){
+		acyclic(v->adj[i].dest,cycle);
+		if (cycle)
+			return;
+	}
+	else{
+	    cycle = true;
+		return;
     }
+	}
 }
 
 template<class T>
