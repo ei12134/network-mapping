@@ -3,6 +3,8 @@
 
 #ifdef linux
 	#include <unistd.h>
+	#include <sys/wait.h>
+    #include <signal.h>
 #else
 	#include <winsock2.h>
 	#include <Windows.h>

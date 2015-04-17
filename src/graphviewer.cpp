@@ -4,6 +4,12 @@
 
 #ifdef linux
 pid_t GraphViewer::procId; // = NULL
+
+void sig_child(int signo){
+int status;
+wait(&status);
+}
+
 #endif
 short GraphViewer::port = 7773;
 
@@ -28,19 +34,23 @@ void GraphViewer::initialize(int width, int height, bool dynamic, int port_n) {
   command += port_string;
 
 #ifdef linux
-  if (!(procId = fork())) {
-    system(command.c_str());
-    kill(getppid(), SIGINT);
-    exit(0);  
-  }
-  else {
+  
+  signal(SIGCHLD, sig_child);
+  
+  procId = fork();
+  if (procId > 0) {
     usleep(2000000);
     con = new Connection(port_n);
 
     char buff[200];
     sprintf(buff, "newGraph %d %d %s\n", width, height, (dynamic?"true":"false"));
     string str(buff);
-    con->sendMsg(str);  
+    con->sendMsg(str);
+  }
+  else {
+      system(command.c_str());
+      kill(getppid(), SIGCHLD);
+      exit(EXIT_SUCCESS);  
   }
 #else
   STARTUPINFO si;
