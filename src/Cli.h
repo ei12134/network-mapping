@@ -13,6 +13,7 @@
 
 #include "Algorithms.h"
 #include "graphviewer.h"
+#include "Graph.h"
 using namespace std;
 
 #ifdef _WIN32
@@ -138,8 +139,8 @@ public:
 	}
 
 	void menu();
-	void graphInfo(const Graph<Intersection>& graph);
-	void graphViewer(const Graph<Intersection>& graph);
+	void graphInfo(const vector<Vertex<Intersection> *> vertexSet);
+	void graphViewer(const vector<Vertex<Intersection> *> vertexSet);
 
 	int displayContainer(vector<string> vec, string listName, string labels,
 			string sortStr);

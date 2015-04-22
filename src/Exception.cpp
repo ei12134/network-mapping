@@ -8,4 +8,3 @@ string Exception<DataTypeT>::getError() const {
     outStr << msg << " :(value: " << value << ")";
     return outStr.str();
 }
-

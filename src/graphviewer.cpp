@@ -34,9 +34,9 @@ void GraphViewer::initialize(int width, int height, bool dynamic, int port_n) {
   command += port_string;
 
 #ifdef linux
-  
+
   signal(SIGCHLD, sig_child);
-  
+
   procId = fork();
   if (procId > 0) {
     usleep(2000000);
@@ -50,7 +50,7 @@ void GraphViewer::initialize(int width, int height, bool dynamic, int port_n) {
   else {
       system(command.c_str());
       kill(getppid(), SIGCHLD);
-      exit(EXIT_SUCCESS);  
+      exit(EXIT_SUCCESS);
   }
 #else
   STARTUPINFO si;
@@ -66,21 +66,21 @@ void GraphViewer::initialize(int width, int height, bool dynamic, int port_n) {
 		      FALSE,          // Set handle inheritance to FALSE
 		      0,              // No creation flags
 		      NULL,           // Use parent's environment block
-		      NULL,           // Use parent's starting directory 
+		      NULL,           // Use parent's starting directory
 		      &si,            // Pointer to STARTUPINFO structure
 		      &pi )           // Pointer to PROCESS_INFORMATION structure
       ) {
     printf( "CreateProcess failed (%d).\n", GetLastError() );
     return;
   }
- 
-  // Close process and thread handles. 
+
+  // Close process and thread handles.
   CloseHandle( pi.hProcess );
   CloseHandle( pi.hThread );
 
   Sleep(2000);
   con = new Connection(port_n);
-  
+
   char buff[200];
   sprintf(buff, "newGraph %d %d %s\n", width, height, (dynamic?"true":"false"));
   string str(buff);

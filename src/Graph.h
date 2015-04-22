@@ -3,39 +3,151 @@
 
 #include <vector>
 #include <queue>
-
+#include <list>
+#include <limits>
+#include <cmath>
+#include <iostream>
 using namespace std;
 
 template<class T> class Edge;
 template<class T> class Graph;
 
+const int NOT_VISITED = 0;
+const int BEING_VISITED = 1;
+const int DONE_VISITED = 2;
+//const int INT_INFINITY = INT_MAX;
+
+/*
+ * ================================================================================================
+ * Class Vertex
+ * ================================================================================================
+ */
 template<class T>
 class Vertex {
 	T info;
 	vector<Edge<T> > adj;
 	bool visited;
+	int set;
 public:
 	Vertex(T in);
+	T getInfo() const;
+	vector<Edge<T> > getAdj() const;
 	friend class Graph<T> ;
 	void addEdge(Vertex<T> *dest, double w);
 	bool removeEdge(Vertex<T> *dest);
 	vector<string> print(bool edges) const;
-
-	friend class Cli;
+	Vertex* path;
 };
 
 template<class T>
+Vertex<T>::Vertex(T in) :
+		info(in), visited(false), set(0) {
+	path = NULL;
+}
+
+template<class T>
+T Vertex<T>::getInfo() const {
+	return info;
+}
+
+template<class T>
+vector<Edge<T> > Vertex<T>::getAdj() const {
+	return adj;
+}
+
+template<class T>
+bool Vertex<T>::removeEdge(Vertex<T> *dest) {
+	for (size_t i = 0; i < adj.size(); i++) {
+		if (adj[i].dest->info.getId() == dest->info.getId()) {
+			adj.erase(adj.begin() + i);
+			return true;
+		}
+	}
+	return false;
+}
+
+template<class T>
+void Vertex<T>::addEdge(Vertex<T> *dest, double w) {
+	Edge<T> edgeD(dest, w);
+	edgeD.orig = this;
+	adj.push_back(edgeD);
+}
+
+template<class T>
+vector<string> Vertex<T>::print(bool edges) const {
+	vector<string> p;
+	if (edges) {
+		for (size_t i = 0; i < adj.size(); i++) {
+			stringstream ss;
+			ss.clear();
+			ss << "\t  " << info << "\t\t\t  " << (adj[i].dest)->info
+					<< "\t\t\t  " << adj[i].distance << " m";
+			p.push_back(ss.str());
+		}
+	} else {
+		stringstream ss;
+		ss << "\t\t" << info.getId() << "\t\t" << info.getX() << "\t\t"
+				<< info.getX() << "\t\t" << info.getType();
+		p.push_back(ss.str());
+	}
+	return p;
+}
+
+/* ================================================================================================
+ * Class Edge
+ * ================================================================================================
+ */
+template<class T>
 class Edge {
 	Vertex<T> * dest;
+	Vertex<T> * orig;
 	double distance;
 public:
 	Edge(Vertex<T> *d, double w);
+	Vertex<T> * getDest() const;
+	Vertex<T> * getOrig() const;
+	double getDistance() const;
+	bool operator<(const Edge<T> &other) const;
 	friend class Graph<T> ;
 	friend class Vertex<T> ;
-
-	friend class Cli;
 };
 
+template<class T>
+Edge<T>::Edge(Vertex<T> *d, double w) :
+		dest(d), distance(w) {
+}
+
+template<class T>
+Vertex<T> * Edge<T>::getDest() const {
+	return dest;
+}
+
+template<class T>
+Vertex<T> * Edge<T>::getOrig() const {
+	return orig;
+}
+
+template<class T>
+double Edge<T>::getDistance() const {
+	return distance;
+}
+
+template<class T>
+bool Edge<T>::operator<(const Edge<T> &other) const {
+	return this->distance < other.distance;
+}
+
+template<class T>
+struct edge_greater_than {
+	bool operator()(Edge<T> a, Edge<T> b) const {
+		return a.getDistance() > b.getDistance();
+	}
+};
+
+/* ================================================================================================
+ * Class Graph
+ * ================================================================================================
+ */
 template<class T>
 class Graph {
 	vector<Vertex<T> *> vertexSet;
@@ -54,56 +166,9 @@ public:
 	void acyclic(Vertex<T>* v, bool& cycle) const;
 	void dfs(Vertex<T> *v, vector<T> & dS) const;
 	void clear();
+	vector<Vertex<T>*> calculateKruskal();
 	~Graph();
 };
-
-#include "Graph.h"
-
-template<class T>
-Vertex<T>::Vertex(T in) :
-		info(in), visited(false) {
-}
-
-template<class T>
-bool Vertex<T>::removeEdge(Vertex<T> *dest) {
-	for (size_t i = 0; i < adj.size(); i++) {
-		if (adj[i].dest->info.getId() == dest->info.getId()) {
-			adj.erase(adj.begin() + i);
-			return true;
-		}
-	}
-	return false;
-}
-
-template<class T>
-void Vertex<T>::addEdge(Vertex<T> *dest, double w) {
-	Edge<T> edgeD(dest, w);
-	adj.push_back(edgeD);
-}
-
-template<class T>
-vector<string> Vertex<T>::print(bool edges) const {
-    vector<string> p;
-    if (edges){
-	for (size_t i = 0; i < adj.size(); i++) {
-	    stringstream ss;
-	    ss.clear();
-	    ss << "\t  " << info << "\t\t\t  " << (adj[i].dest)->info << "\t\t\t  "<< adj[i].distance << " m";
-	    p.push_back(ss.str());
-	}
-    }
-    else{
-	stringstream ss;
-	ss << "\t\t" << info.getId() << "\t\t" << info.getX() << "\t\t"<< info.getX() << "\t\t" << info.getType();
-	p.push_back(ss.str());
-    }
-    return p;
-}
-
-template<class T>
-Edge<T>::Edge(Vertex<T> *d, double w) :
-		dest(d), distance(w) {
-}
 
 template<class T>
 void Graph<T>::clear() {
@@ -111,15 +176,15 @@ void Graph<T>::clear() {
 // 		delete vertexSet[x];
 // 	}
 // 	vertexSet.clear();
-     typename vector<Vertex<T>*>::iterator it= vertexSet.begin();
-    typename vector<Vertex<T>*>::iterator ite= vertexSet.end();
-    vertexSet.erase(it, ite);
+	typename vector<Vertex<T>*>::iterator it = vertexSet.begin();
+	typename vector<Vertex<T>*>::iterator ite = vertexSet.end();
+	vertexSet.erase(it, ite);
 }
 
 template<class T>
 Graph<T>::~Graph() {
 	//clear(); RECHECK !!
-    clear();
+	clear();
 }
 
 template<class T>
@@ -206,57 +271,56 @@ bool Graph<T>::removeEdge(const T &sourc, const T &dest) {
 }
 
 template<class T>
-bool Graph<T>::acyclic() const{
-    bool cycle = false;
-    
-    for (size_t i = 0; i < vertexSet.size(); i++) {
-	vertexSet[i]->visited = false;
-    }
-    for (size_t i = 0; i < vertexSet.size(); i++) {
-	if (!vertexSet[i]->visited){
-	    acyclic(vertexSet[i],cycle);
+bool Graph<T>::acyclic() const {
+	bool cycle = false;
+
+	for (size_t i = 0; i < vertexSet.size(); i++) {
+		vertexSet[i]->visited = false;
 	}
-    }
-    return !cycle;
+	for (size_t i = 0; i < vertexSet.size(); i++) {
+		if (!vertexSet[i]->visited) {
+			acyclic(vertexSet[i], cycle);
+		}
+	}
+	return !cycle;
 }
 
 template<class T>
 void Graph<T>::acyclic(Vertex<T>* v, bool& cycle) const {
-    v->visited = true;
-    for (size_t i = 0; i < v->adj.size(); i++) {
-	if (!v->adj[i].dest->visited){
-		acyclic(v->adj[i].dest,cycle);
-		if (cycle)
+	v->visited = true;
+	for (size_t i = 0; i < v->adj.size(); i++) {
+		if (!v->adj[i].dest->visited) {
+			acyclic(v->adj[i].dest, cycle);
+			if (cycle)
+				return;
+		} else {
+			cycle = true;
 			return;
-	}
-	else{
-	    cycle = true;
-		return;
-    }
+		}
 	}
 }
 
 template<class T>
 vector<T> Graph<T>::dfs() const {
-    vector<T> dS;
-    for (size_t i = 0; i < vertexSet.size(); i++) {
-	vertexSet[i]->visited = false;
-    }
-    for (size_t i = 0; i < vertexSet.size(); i++) {
-	if (!vertexSet[i]->visited)
-	    dfs(vertexSet[i], dS);
-    }
-    return dS;
+	vector<T> dS;
+	for (size_t i = 0; i < vertexSet.size(); i++) {
+		vertexSet[i]->visited = false;
+	}
+	for (size_t i = 0; i < vertexSet.size(); i++) {
+		if (!vertexSet[i]->visited)
+			dfs(vertexSet[i], dS);
+	}
+	return dS;
 }
 
 template<class T>
 void Graph<T>::dfs(Vertex<T>* v, vector<T>& dS) const {
-    v->visited = true;
-    dS.push_back(v->info);
-    for (size_t i = 0; i < v->adj.size(); i++) {
-	if (!v->adj[i].dest->visited)
-	    dfs(v->adj[i].dest, dS);
-    }
+	v->visited = true;
+	dS.push_back(v->info);
+	for (size_t i = 0; i < v->adj.size(); i++) {
+		if (!v->adj[i].dest->visited)
+			dfs(v->adj[i].dest, dS);
+	}
 }
 
 template<class T>
@@ -323,15 +387,84 @@ int Graph<T>::maxNewChildren(Vertex<T> *v, T &inf) const {
 
 template<class T>
 vector<string> Graph<T>::print(bool edges) const {
-    vector<string> p;
+	vector<string> p;
 
-    for (size_t i = 0; i < vertexSet.size(); i++) {
-	vector<string> v = vertexSet[i]->print(edges);
-	for (size_t j = 0; j < v.size(); j++)
-	    p.push_back(v[j]);
-	v.clear();
-    }
-    
-    return p;
+	for (size_t i = 0; i < vertexSet.size(); i++) {
+		vector<string> v = vertexSet[i]->print(edges);
+		for (size_t j = 0; j < v.size(); j++)
+			p.push_back(v[j]);
+		v.clear();
+	}
+
+	return p;
 }
+
+template<class T>
+vector<Vertex<T>*> Graph<T>::calculateKruskal() {
+	unsigned edges_accepted = 0;
+	if (vertexSet.size() == 0)
+		return this->vertexSet;
+
+	vector<Vertex<T>*> forest;
+	for (unsigned int i = 0; i < this->vertexSet.size(); i++) {
+		Vertex<T>* v = new Vertex<T>(this->vertexSet[i]->info);
+		v->set = i;
+		forest.push_back(v);
+	}
+
+	//Initialize the list of edges
+	vector<Edge<T> > allEdges;
+	for (unsigned int i = 0; i < this->vertexSet.size(); i++) {
+		Vertex<T>* v = this->vertexSet[i];
+		v->set = i;
+		for (unsigned int a = 0; a < v->adj.size(); a++)
+			allEdges.push_back(v->adj[a]);
+	}
+
+	//Make heap from vector
+	make_heap(allEdges.begin(), allEdges.end(), edge_greater_than<T>());
+
+	while (edges_accepted < vertexSet.size() - 1) {
+		sort_heap(allEdges.begin(), allEdges.end());
+
+		Edge<T> minEdge = allEdges[0];		// get edge with minimum weight
+		allEdges.erase(allEdges.begin());
+
+		//Get the vertices
+		T o = minEdge.orig->info;
+		T d = minEdge.dest->info;
+
+		Vertex<T>* origin = NULL;
+		Vertex<T>* dest = NULL;
+
+		for (unsigned int i = 0; i < forest.size(); i++) {
+			if (o == forest[i]->info)
+				origin = forest[i];
+			if (d == forest[i]->info)
+				dest = forest[i];
+		}
+
+		if (origin->set != dest->set) {
+			int minSet = min(origin->set, dest->set);
+			int maxSet = max(origin->set, dest->set);
+			for (unsigned int k = 0; k < forest.size(); k++) {
+				if (forest[k]->set == maxSet)
+					forest[k]->set = minSet;
+			}
+			if (dest->path == NULL) {
+				dest->path = origin;
+				cout << "Dest = " << origin->info.getId() << " ";
+			} else if (origin->path == NULL) {
+				origin->path = dest;
+				cout << "Origin = " << origin->info.getId() << " ";
+			}
+
+			edges_accepted++;
+			cout << edges_accepted << endl;
+		}
+	}
+
+	return forest;
+}
+
 #endif

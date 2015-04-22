@@ -10,18 +10,18 @@ private:
     string msg;
     DataTypeT value;
 public:
-    
-    Exception(string str, DataTypeT value) :
-    msg(str), value(value) {
+
+    Exception(string str, DataTypeT value) : msg(str), value(value) {
     }
-    
+
     string getError() const;
-    
+
     string getMessage() const {
-	return msg;
+        return msg;
     }
+    
     DataTypeT getValue() const {
-	return value;
+        return value;
     }
 };
 
