@@ -1,0 +1,11 @@
+.directory
+
+*.aux
+*.log
+*.out
+*.tex.backup
+*.toc
+*.o
+
+bin/netmap
+bin/*.csv
