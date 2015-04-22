@@ -27,12 +27,14 @@ class Algorithms {
 private:
     double radius;
     double area;
-    Graph<Intersection> graph;
-    Graph<Intersection> stGraph;
+    Graph<Intersection> input;
+    Graph<Intersection> result;
     void readVertexes(const char *filePath);
     void readEdges(const char *filePath);
 public:
-    Graph<Intersection> getGraph() const;
+    Algorithms();
+    Graph<Intersection> getInputGraph() const;
+    Graph<Intersection> getResultGraph() const;
     void setGraph(Graph<Intersection> graph);
     void loadData(const char * vertexPath, const char * edgesPath);
     void saveData();

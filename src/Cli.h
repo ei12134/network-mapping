@@ -90,7 +90,7 @@ private:
 	DWORD fdwOldMode;
 	DWORD wOldColorAttrs;
 #endif
-	Algorithms alg;
+	Algorithms a;
 	bool infBgI, infFgI, strBgI, strFgI, errBgI, errFgI;
 	int infBg, infFg, errBg, errFg, strBg, strFg;
 	
@@ -139,7 +139,7 @@ public:
 	}
 
 	void menu();
-	void graphInfo(const vector<Vertex<Intersection> *> vertexSet);
+	void graphInfo(Graph<Intersection>& graph);
 	void graphViewer(const vector<Vertex<Intersection> *> vertexSet);
 
 	int displayContainer(vector<string> vec, string listName, string labels,

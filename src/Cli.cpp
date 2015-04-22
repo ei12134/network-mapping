@@ -357,12 +357,13 @@ void Cli::menu() {
 	string exitMsg = "Quit?";
 	string headerMsg = "Telefones";
 	string infMsg, errMsg;
-	Graph<Intersection> graph;
+	Graph<Intersection> graph, result;
 
 	do {
 		clearScreen();
 		displayHeader(headerMsg);
-		graph = alg.getGraph();
+		graph = a.getInputGraph();
+		result = a.getResultGraph();
 
 		for (size_t i = 0; i < menuCmdsSize; i++)
 			cmdMsg(spacing, (i + 1), menuCmds[i], 1);
@@ -383,36 +384,39 @@ void Cli::menu() {
 		input = getKey();
 		switch (input) {
 		case '1':
-			alg.loadData(DEFAULT_VERTICES_FILE, DEFAULT_EDGES_FILE);
+			a.loadData(DEFAULT_VERTICES_FILE, DEFAULT_EDGES_FILE);
 			infMsg = " The graph was successfully built ";
 			break;
 		case '2':
-			cout << "Enter area: ";
+			cout << "Area (m^2): ";
 			if (!readArea())
 				errMsg = " Enter a valid area value ";
+			else {
+				result.selectArea(a.getRadius());
+				graphViewer(result.getVertexSet());
+			}
 			break;
 		case '3':
-			graph = alg.getGraph();
 			if (graph.getVertexSet().size() != 0) {
-				graphViewer(alg.getGraph().calculateKruskal());
-				//graphViewer(alg.getGraph().getVertexSet());
+				graphViewer(graph.calculatePrim());
+				//graphViewer(alg.getGraph().calculateKruskal());
 				getKey();
 				//gv->closeWindow();
 			} else
 				errMsg = " Empty or invalid graph ";
 			break;
 		case '4':
-//		    if (graph.getVertexSet().size() != 0)
-////			graphInfo(graph);
-//		    else
-			errMsg = " Empty or invalid graph ";
+			if (graph.getVertexSet().size() != 0)
+				graphInfo(graph);
+			else
+				errMsg = " Empty or invalid graph ";
 			break;
 		case '5':
-			displayContainer(alg.printVertices(), "Graph vertices",
+			displayContainer(a.printVertices(), "Graph vertices",
 					"\t\tId\t\tX\t\tY\t\tType", "");
 			break;
 		case '6':
-			displayContainer(alg.printEdges(), "Graph edges",
+			displayContainer(a.printEdges(), "Graph edges",
 					"\tSource\t\t\tDestiny\t\t\tDistance", "");
 			break;
 		case '7':
@@ -512,40 +516,54 @@ int Cli::displayContainer(vector<string> vec, string listName, string labels,
 	return 0;
 }
 
-void Cli::graphInfo(const vector<Vertex<Intersection> *> vertexSet) {
-//    string headerMsg = "Graph information";
-//
-//     // Get statistical values from the graph
-//    int totalVertices = vertexSet.size();
-//    int totalEdges = 0;
-//    double totalDistance = 0.0;
-//
-//    for (size_t x = 0; x < vertexSet.size(); x++){
-//	totalEdges += vertexSet[x]->adj.size();
-//	for (size_t i = 0; i < vertexSet[x]->adj.size(); i++)
-//	    totalDistance += vertexSet[x]->adj[i].distance;
-//    }
-//
-//    string cycles = (graph.acyclic()?"yes":"no");
-//
-//    // Display data
-//    clearScreen();
-//    displayHeader(headerMsg);
-//
-//    string spacing = THREE_TABS + HALF_TAB;
-//
-//    coloredString(false, spacing, "Number of vertices: ", infBg, infBgI, infFg, infFgI, 0);
-//    cout << totalVertices << "\n";
-//    coloredString(false, spacing, "Number of edges: ", infBg, infBgI, infFg, infFgI, 0);
-//    cout << totalEdges << "\n";
-//    coloredString(false, spacing, "Total distance: ", infBg, infBgI, infFg, infFgI, 0);
-//    cout << totalDistance << " m " << "\n";
-//    coloredString(false, spacing, "Acyclic graph: ", infBg, infBgI, infFg, infFgI, 0);
-//    cout << cycles << "\n\n";
-//
-//    coloredString(false, THREE_TABS, "Press any key to continue...", strFg, strFgI, strBg, strBgI,0);
-//
-//    getKey();
+void Cli::graphInfo(Graph<Intersection>& graph) {
+	string headerMsg = "Graph information";
+
+	vector<Vertex<Intersection> *> vertexSet = graph.getVertexSet();
+
+	// Get statistical values from the graph
+	int totalVertices = vertexSet.size();
+	int totalEdges = 0;
+	double totalDistance = 0.0;
+
+	for (size_t x = 0; x < vertexSet.size(); x++) {
+		vector<Edge<Intersection> > adj = vertexSet[x]->getAdj();
+		totalEdges += adj.size();
+		for (size_t i = 0; i < adj.size(); i++)
+			totalDistance += adj[i].getDistance();
+	}
+	if (!graph.getDirected())
+		totalDistance /= 2;
+
+	string cycles = "no";
+	if (graph.getDirected() && graph.isDAG())
+		cycles = "yes";
+
+	// Display data
+	clearScreen();
+	displayHeader(headerMsg);
+
+	string spacing = THREE_TABS + HALF_TAB;
+
+	coloredString(false, spacing, "Number of vertices: ", infBg, infBgI, infFg,
+			infFgI, 0);
+	cout << totalVertices << "\n";
+	coloredString(false, spacing, "Number of edges: ", infBg, infBgI, infFg,
+			infFgI, 0);
+	cout << totalEdges << "\n";
+	coloredString(false, spacing, "Total distance: ", infBg, infBgI, infFg,
+			infFgI, 0);
+	cout << totalDistance << " m " << "\n";
+	coloredString(false, spacing, "Directed: ", infBg, infBgI, infFg, infFgI,
+			0);
+	cout << (graph.getDirected() ? "yes" : "no") << "\n";
+	coloredString(false, spacing, "Acyclic: ", infBg, infBgI, infFg, infFgI, 0);
+	cout << cycles << "\n\n";
+
+	coloredString(false, THREE_TABS, "Press any key to continue...", strFg,
+			strFgI, strBg, strBgI, 0);
+
+	getKey();
 }
 
 void Cli::graphViewer(const vector<Vertex<Intersection> *> vertexSet) {
@@ -581,38 +599,38 @@ void Cli::graphViewer(const vector<Vertex<Intersection> *> vertexSet) {
 	int counter = 0;
 	for (size_t x = 0; x < vertexSet.size(); x++) {
 
-//		vector<Edge<Intersection> > adj = vertexSet[x]->getAdj();
-//		for (size_t i = 0; i < adj.size(); i++) {
-//			// Add edge
-//			gv->addEdge(counter, vertexSet[x]->getInfo().getId(),
-//					adj[i].getDest()->getInfo().getId(), EdgeType::UNDIRECTED);
-//
-//			// Add label
-//			ss << adj[i].getDistance();
-//			label = ss.str() + " m";
-//			gv->setEdgeLabel(counter, label);
-//			counter++;
-//
-//			// Clear & reset stringstream
-//			ss.str(std::string());
-//			ss.clear();
-//		}
-		if (vertexSet[x]->path != NULL) {
-
+		vector<Edge<Intersection> > adj = vertexSet[x]->getAdj();
+		for (size_t i = 0; i < adj.size(); i++) {
+			// Add edge
 			gv->addEdge(counter, vertexSet[x]->getInfo().getId(),
-					vertexSet[x]->path->getInfo().getId(),
-					EdgeType::UNDIRECTED);
-			cout << counter << endl;
-		 //Add label
-			ss << "xD";
+					adj[i].getDest()->getInfo().getId(), EdgeType::UNDIRECTED);
+
+			// Add label
+			ss << adj[i].getDistance();
 			label = ss.str() + " m";
 			gv->setEdgeLabel(counter, label);
 			counter++;
 
+			// Clear & reset stringstream
+			ss.str(std::string());
+			ss.clear();
 		}
-		// Clear & reset stringstream
-		ss.str(std::string());
-		ss.clear();
+//		if (vertexSet[x]->path != NULL) {
+//
+//			gv->addEdge(counter, vertexSet[x]->getInfo().getId(),
+//					vertexSet[x]->path->getInfo().getId(),
+//					EdgeType::UNDIRECTED);
+//			cout << counter << endl;
+//			//Add label
+//			ss << vertexSet[x]->getDist();
+//			label = ss.str() + " m";
+//			gv->setEdgeLabel(counter, label);
+//			counter++;
+//
+//		}
+//		// Clear & reset stringstream
+//		ss.str(std::string());
+//		ss.clear();
 	}
 
 	// Redraw
@@ -627,7 +645,8 @@ bool Cli::readArea() {
 		stringstream ss;
 		ss << input;
 		ss >> area;
-		alg.setArea(area);
+		// Meters/Pixels ratio = 2
+		a.setArea(area / 2.0);
 		return true;
 	}
 	return false;
