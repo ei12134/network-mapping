@@ -421,21 +421,19 @@ void Cli::menu() {
 				errMsg = " Enter a valid area value ";
 			else {
 				result.selectArea(a.getRadius());
-				graphViewer(result.getVertexSet());
+				result.calculatePrim();
+				graphInfo(result, true);
 			}
 			break;
 		case '3':
 			if (graph.getVertexSet().size() != 0) {
-				graphViewer(graph.calculatePrim());
-				//graphViewer(alg.getGraph().calculateKruskal());
-				getKey();
-				//gv->closeWindow();
+				graphInfo(graph, true);
 			} else
 				errMsg = " Empty or invalid graph ";
 			break;
 		case '4':
 			if (graph.getVertexSet().size() != 0)
-				graphInfo(graph);
+				graphInfo(graph, false);
 			else
 				errMsg = " Empty or invalid graph ";
 			break;
@@ -544,7 +542,7 @@ int Cli::displayContainer(vector<string> vec, string listName, string labels,
 	return 0;
 }
 
-void Cli::graphInfo(Graph<Intersection>& graph) {
+void Cli::graphInfo(Graph<Intersection>& graph, bool gui) {
 	string headerMsg = "Graph information";
 
 	vector<Vertex<Intersection> *> vertexSet = graph.getVertexSet();
@@ -586,10 +584,18 @@ void Cli::graphInfo(Graph<Intersection>& graph) {
 			0);
 	cout << (graph.getDirected() ? "yes" : "no") << "\n";
 	coloredString(false, spacing, "Acyclic: ", infBg, infBgI, infFg, infFgI, 0);
-	cout << cycles << "\n\n";
-
-	coloredString(false, THREE_TABS, "Press any key to continue...", strFg,
-			strFgI, strBg, strBgI, 0);
+	cout << cycles << "\n\n\n";
+	
+	if (gui) {
+		infoMsg(" Lauching graphical viewer ", 3);
+		coloredString(false, THREE_TABS, "Press any key to continue...", strFg,
+					  strFgI, strBg, strBgI, 0);
+		cout.flush();
+		graphViewer(graph.getVertexSet());
+	} else {
+		coloredString(false, THREE_TABS, "Press any key to continue...", strFg,
+					  strFgI, strBg, strBgI, 0);
+	}
 
 	getKey();
 }

@@ -114,7 +114,7 @@ void Algorithms::readEdges(const char *filePath) {
 				cnv >> distance;
 				cnv.clear();
 				
-				// find vertexes (nota check if error)
+				// find vertexes
 				Intersection src(srcId, 0, 0, INTERSECTION);
 				Intersection dst(dstId, 0, 0, INTERSECTION);
 				
