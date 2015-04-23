@@ -195,7 +195,35 @@ char Cli::getKey() {
 //FlushConsoleInputBuffer(hConsoleInput); // getline & special keys
 // Restore input mode on exit.
 	SetConsoleMode(hConsoleInput, fdwSaveOldMode);
-
+	bool Cli::readArea() {
+		string input;
+		double area;
+		getline(cin, input);
+		if (is_All_Number(input)) {
+			stringstream ss;
+			ss << input;bool Cli::readArea() {
+				string input;
+				double area;
+				getline(cin, input);
+				if (is_All_Number(input)) {
+					stringstream ss;
+					ss << input;
+					ss >> area;
+					// Meters/Pixels ratio = 2
+					a.setArea(area / 2.0);
+					return true;
+				}
+				return false;
+			}
+			
+			ss >> area;
+			// Meters/Pixels ratio = 2
+			a.setArea(area / 2.0);
+			return true;
+		}
+		return false;
+	}
+	
 	return key;
 
 #elif _WIN64
@@ -641,7 +669,7 @@ bool Cli::readArea() {
 	string input;
 	double area;
 	getline(cin, input);
-	if (is_All_Number(input)) {
+	if (input.size() > 0 && is_All_Number(input)) {
 		stringstream ss;
 		ss << input;
 		ss >> area;

@@ -3,8 +3,7 @@
 Algorithms::Algorithms() {
 }
 
-void Algorithms::loadData(const char * vertexFileName,
-		const char * edgesFileName) {
+void Algorithms::loadData(const char * vertexFileName,const char * edgesFileName) {
 	input.clear();
 	readVertexes(vertexFileName);
 	readEdges(edgesFileName);
@@ -17,7 +16,7 @@ void Algorithms::readVertexes(const char *filePath) {
 	int x, y;
 	int id;
 	int type;
-
+	
 	file.open(filePath);
 	if (file.is_open()) {
 		while (file.good()) {
@@ -27,11 +26,11 @@ void Algorithms::readVertexes(const char *filePath) {
 				ss.clear();
 				sId.clear();
 				sType.clear();
-
+				
 				// read a line
 				getline(file, line, '\n');
 				ss << line;
-
+				
 				// parse a line
 				if (!getline(ss, sId, ';'))
 					throw Exception<string>("Error reading id", "Vertex");
@@ -39,28 +38,28 @@ void Algorithms::readVertexes(const char *filePath) {
 				cnv >> id;
 				cnv.str(std::string());
 				cnv.clear();
-
+				
 				if (!getline(ss, sId, ';'))
 					throw Exception<string>("Error reading x", "Vertex");
 				cnv << sId;
 				cnv >> x;
 				cnv.str(std::string());
 				cnv.clear();
-
+				
 				if (!getline(ss, sId, ';'))
 					throw Exception<string>("Error reading y", "Vertex");
 				cnv << sId;
 				cnv >> y;
 				cnv.str(std::string());
 				cnv.clear();
-
+				
 				if (!getline(ss, sType))
 					throw Exception<string>("Error reading type", "Vertex");
 				cnv << sType;
 				cnv >> type;
 				cnv.str(std::string());
 				cnv.clear();
-
+				
 				// add intersection to the graph
 				Intersection i(id, x, y, type);
 				input.addVertex(i);
@@ -79,7 +78,7 @@ void Algorithms::readEdges(const char *filePath) {
 	stringstream ss, cnv;
 	double distance;
 	unsigned int srcId, dstId;
-
+	
 	file.open(filePath);
 	if (file.is_open()) {
 		while (file.good()) {
@@ -90,39 +89,39 @@ void Algorithms::readEdges(const char *filePath) {
 				sSrcId.clear();
 				sDstId.clear();
 				sDist.clear();
-
+				
 				// read a line
 				getline(file, line, '\n');
 				ss << line;
-
+				
 				// parse a line
 				if (!getline(ss, sSrcId, ';'))
 					throw Exception<string>("Error reading source id", "Edges");
 				cnv << sSrcId;
 				cnv >> srcId;
 				cnv.clear();
-
+				
 				if (!getline(ss, sDstId, ';'))
 					throw Exception<string>("Error reading destiny id",
-							"Edges");
-				cnv << sDstId;
+											"Edges");
+					cnv << sDstId;
 				cnv >> dstId;
 				cnv.clear();
-
+				
 				if (!getline(ss, sDist))
 					throw Exception<string>("Error reading distance", "Edges");
 				cnv << sDist;
 				cnv >> distance;
 				cnv.clear();
-
+				
 				// find vertexes (nota check if error)
 				Intersection src(srcId, 0, 0, INTERSECTION);
 				Intersection dst(dstId, 0, 0, INTERSECTION);
-
+				
 				// add edge to the graph
 				input.addEdge(src, dst, distance);
 				input.addEdge(dst, src, distance);
-
+				
 				// add copy to result graph
 				result.addEdge(src, dst, distance);
 				result.addEdge(dst, src, distance);

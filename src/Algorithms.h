@@ -25,25 +25,25 @@ bool is_All_Number(const string& s);
 
 class Algorithms {
 private:
-    double radius;
-    double area;
-    Graph<Intersection> input;
-    Graph<Intersection> result;
-    void readVertexes(const char *filePath);
-    void readEdges(const char *filePath);
+	double radius;
+	double area;
+	Graph<Intersection> input;
+	Graph<Intersection> result;
+	void readVertexes(const char *filePath);
+	void readEdges(const char *filePath);
 public:
-    Algorithms();
-    Graph<Intersection> getInputGraph() const;
-    Graph<Intersection> getResultGraph() const;
-    void setGraph(Graph<Intersection> graph);
-    void loadData(const char * vertexPath, const char * edgesPath);
-    void saveData();
-    vector<string> printVertices();
-    vector<string> printEdges();
-    void setArea(double area);
-    void setRadius(double radius);
-    double getArea() const;
-    double getRadius() const;
+	Algorithms();
+	Graph<Intersection> getInputGraph() const;
+	Graph<Intersection> getResultGraph() const;
+	void setGraph(Graph<Intersection> graph);
+	void loadData(const char * vertexPath, const char * edgesPath);
+	void saveData();
+	vector<string> printVertices();
+	vector<string> printEdges();
+	void setArea(double area);
+	void setRadius(double radius);
+	double getArea() const;
+	double getRadius() const;
 };
 
 #endif
