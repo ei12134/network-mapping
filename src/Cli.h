@@ -139,8 +139,8 @@ public:
 	}
 
 	void menu();
-	void graphInfo(Graph<Intersection>& graph, bool gui);
-	void graphViewer(const vector<Vertex<Intersection> *> vertexSet);
+	void graphInfo(const vector<Vertex<Intersection> *> vertexSet, bool path, bool gui);
+	void graphViewer(const vector<Vertex<Intersection> *> vertexSet, bool path);
 
 	int displayContainer(vector<string> vec, string listName, string labels,
 			string sortStr);
