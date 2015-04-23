@@ -35,18 +35,20 @@ G<V,E>
 
 Pretende-se guardar os dados em dois ficheiros distintos, \texttt{vertexes.csv}, onde temos os números identificativos das casas e intersecções de ruas, vértices do grafo e \texttt{edges.csv} onde se estabelecem as relações entre os vértices do ficheiro anterior e respectivas distâncias, por forma a caracterizar as arestas do grafo.\vspace{0,50cm}
 
-Os vértices são guardados um por cada linha e são separados por ponto e vírgula de um valor que determina se o vértice é intersecção de rua - \emph{0}, casa - \emph{1} ou central - \emph{2}.
+Os vértices são guardados um por cada linha e são separados por ponto e vírgula dos valores posicionais $x$ e $y$ e de um valor que determina se o vértice é intersecção de rua - 0, casa - 1 ou central - 2.
 
-Exemplo: \emph{3;1} (o vértice número 3 é uma casa)\vspace{0,50cm}
+Exemplo: \texttt{3;264;250;1} (o vértice número 3 é uma casa com coordenadas $x$ e $y$ de 264 e 250 píxeis respectivamente)\vspace{0,50cm}
 
 As arestas são guardadas uma por cada linha, sendo os primeiros dois valores os números identificativos dos vértices e o último a distância em metros entre eles.
 
-Exemplo: \emph{2;3;150} (o vértice número 3 dista 150 metros do vértice 2)
+Exemplo: \texttt{2;3;150} (o vértice número 3 dista 150 metros do vértice 2)
 
 \subsection{Limites e condições de aplicação}
 Na lista final, não poderá existir repetição de pares de vértices, ou seja, arestas repetidas e todos os vértices-casa têm de estar contidos nesta lista final.
 
 Caso os dados sejam recolhidos de forma manual, torna-se difícil a representação de uma área grande, com muitos vértices dos quais resulte num grafo de maiores dimensões, pela morosidade de todo o processo de escrita nos ficheiros atrás mencionados. Os resultados da aplicação também estarão dependentes da qualidade e precisão dos valores iniciais, nomeadamente das coordenadas e das distâncias. Em consequência dos algoritmos usados, referidos na secção seguinte, os grafos alvo terão de ser obrigatoriamente não dirigidos e conexos.
+
+\subsection{Situações de contorno}
 
 \subsection{Resultados esperados}
 A aplicação determinará as coordenadas dos vértices que definem as arestas seleccionadas para instalação da cablagem com fibra óptica e a distância total mínima, soma da distância destas arestas. O subconjunto das arestas que formam a árvore de expansão mínima serão armazenadas num ficheiro \emph{output.csv}, com formatação idêntica à do ficheiro das arestas.
@@ -60,32 +62,53 @@ A função objectivo retornará a distância mínima $D$ do somatório das distancias 
 D = min(\sum_{i,j} dist(V_i,V_j))  \colon  V_i,V_j \in Output_k
 \end{equation}
 
-\section{Perspectivas de solução}
+\section{Descrição da solução}
 Após análise do enunciado, verificou-se que um método adequado na resolução do problema será a utilização de um algoritmo que determine uma árvore de expansão mínima, já que se pretende passar fibra por todas as casas de forma o mais eficiente possível, ou seja, com menor gasto de cabo fibra óptica, reduzindo os custos para a empresa.
 Temos em mente a utilização de 3 algoritmos:
 
-\begin{itemize}
-\item Algoritmos que determinam árvores de expansão mínima:
-\end{itemize}
-\begin{description}
-\item[Prim] é um algoritmo ganancioso que encontra a árvore de expansão mínima para um grafo não direccionado, ou seja, este algoritmo tenta encontrar um subconjunto das arestas que formam uma árvore contendo todos os vértices onde o peso total de todas as arestas é mínimo.
+\subsection{Prim}
+É um algoritmo ganancioso que encontra a árvore de expansão mínima para um grafo não direccionado, ou seja, este algoritmo tenta encontrar um subconjunto das arestas que formam uma árvore contendo todos os vértices onde o peso total de todas as arestas é mínimo.
 É mais eficiente do que o algoritmo de \emph{Kruskal} se o número de arestas for muito elevado em relação aos vértices.
-\item[Kruskal] tal como o algoritmo de \emph{Prim} serve para encontrar a árvore de expansão mínima. É mais adequado do que o algoritmo \emph{Prim} para grafos mais simples com poucas arestas, pois usa estruturas mais simples.
-\end{description}
+\subsection{Kruskal}
+Tal como o algoritmo de \emph{Prim} serve para encontrar a árvore de expansão mínima. É mais adequado do que o algoritmo \emph{Prim} para grafos mais simples com poucas arestas, pois usa estruturas mais simples.
 
-\begin{itemize}
-\item Algoritmos que determinam o caminho mais curto:
-\end{itemize}
-\begin{description}
-\item[Dijkstra] com programação dinâmica é usado para encontrar os caminhos mais curtos entre os vértices de um grafo. Neste caso será necessário para procurar o caminho mais curto entre casas que tenham uma ou mais intersecções de ruas entre elas, ou seja, como uma intersecção de ruas pode não ser um vértice casa, pois não contém uma casa, selecciona-se o caminho mais curto entre dois vértices-casa para que este se torne como que uma aresta entre essas duas casas de forma a ser usado correctamente no algoritmo usado para determinar a árvore expansão de custo mínimo.
-\end{description}
+\subsection{Dijkstra}
+Com programação dinâmica é usado para encontrar os caminhos mais curtos entre os vértices de um grafo. Neste caso será necessário para procurar o caminho mais curto entre casas que tenham uma ou mais intersecções de ruas entre elas, ou seja, como uma intersecção de ruas pode não ser um vértice casa, pois não contém uma casa, selecciona-se o caminho mais curto entre dois vértices-casa para que este se torne como que uma aresta entre essas duas casas de forma a ser usado correctamente no algoritmo usado para determinar a árvore expansão de custo mínimo.
 
 
 \section{Métricas de avaliação}
 Como se vai trabalhar com grafos de pequena dimensão, no teste da aplicação, julga-se necessária a criação de testes unitários que executem de forma repetida o mesmo código numa ordem de magnitude o suficientemente grande para se efectuarem medições com valores de múltiplos de segundo.
 
-Para a medição da complexidade espacial, ter-se-á em conta a memória necessária para armazenar todas as variáveis criadas na execução do algoritmo e crescimento com o aumento da quantidade dos dados de entrada.{\let\thefootnote\relax\footnote{N.B. Este relatório não foi escrito ao abrigo do novo Acordo Ortográfico.}}
+Para a medição da complexidade espacial, ter-se-á em conta a memória necessária para armazenar todas as variáveis criadas na execução do algoritmo e crescimento com o aumento da quantidade dos dados de entrada.
 
+\section{Lista de casos de utilização}
+A aplicação permite carregar vértices e arestas contidos em dois ficheiros separados por forma a construir um grafo não dirigido que represente um mapa de uma aldeia. 
+
+Atribuição de uma área máxima em $m^2$, limitando o número de vértices que são calculados pelos algoritmos que determinam a árvore de expansão mínima final.
+
+Sobre os grafos de entrada e saída é possível extrair informação acerca do número de vértices e arestas e a distância total em metros, soma de todas as arestas.
+
+Modo de visualização dos vértices com respectivos $id$ e posição dada pelos valores $x$ e $y$ em píxeis e o seu tipo \texttt{INTERSECTION}, \texttt{HOUSE}, ou \texttt{CENTRAL}, 0, 1 e 2 respectivamente.
+
+Modo de visualização das arestas com respectivos $id$ de origem e destino e distância em metros como peso da aresta.
+
+Multi-plataforma, testado em sistemas Linux e Windows.
+
+\section{Relato das principais dificuldades encontradas no desenvolvimento do trabalho}
+Sentiram-se dificuldades na compreensão do enunciado e definição de fórmulas equivalentes aos dados de entrada pretendidos.
+
+Ao contrário de uma utilização em Windows relativamente sem problemas, o código fornecido para o visualizador de grafos não mantinha o processo pai vivo após o fecho da janela em Linux, resultante da chamada \texttt{fork()}, pelo que esta parte teve que ser rescrita, instalando-se para o efeito um \texttt{SIGCHLD} $handler$ e chamada da função de sistema \texttt{waitpid}.
+
+\section{Indicação do esforço dedicado por cada elemento do grupo}
+
+Desenvolveu-se a leitura e escrita de ficheiros em conjunto.
+
+\subsection{José Peixoto} 
+Envolvido na interface gráfica e da linha de comandos, portando também o código desenvolvido das aulas práticas \emph{Graph.h} para o projecto. Autor do relatório.
+
+\subsection{Pedro Moura}
+
+{\let\thefootnote\relax\footnote{N.B. Este relatório não foi escrito ao abrigo do novo Acordo Ortográfico.}}
 
 \appendix
 \section{Map}
