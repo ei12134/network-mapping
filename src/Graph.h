@@ -465,14 +465,12 @@ vector<Vertex<T>*> Graph<T>::calculateKruskal() {
 	unsigned edges_accepted = 0;
 	if (vertexSet.size() == 0)
 		return this->vertexSet;
-
 	vector<Vertex<T>*> forest;
 	for (unsigned int i = 0; i < this->vertexSet.size(); i++) {
 		Vertex<T>* v = new Vertex<T>(this->vertexSet[i]->info);
 		v->set = i;
 		forest.push_back(v);
 	}
-
 	//Initialize the list of edges
 	vector<Edge<T> > allEdges;
 	for (unsigned int i = 0; i < this->vertexSet.size(); i++) {
@@ -481,30 +479,23 @@ vector<Vertex<T>*> Graph<T>::calculateKruskal() {
 		for (unsigned int a = 0; a < v->adj.size(); a++)
 			allEdges.push_back(v->adj[a]);
 	}
-
 	//Make heap from vector
 	make_heap(allEdges.begin(), allEdges.end(), edge_greater_than<T>());
-
 	while (edges_accepted < vertexSet.size() - 1) {
 		sort_heap(allEdges.begin(), allEdges.end());
-
-		Edge<T> minEdge = allEdges[0];		// get edge with minimum weight
+		Edge<T> minEdge = allEdges[0]; // get edge with minimum weight
 		allEdges.erase(allEdges.begin());
-
 		//Get the vertices
 		T o = minEdge.orig->info;
 		T d = minEdge.dest->info;
-
 		Vertex<T>* origin = NULL;
 		Vertex<T>* dest = NULL;
-
 		for (unsigned int i = 0; i < forest.size(); i++) {
 			if (o == forest[i]->info)
 				origin = forest[i];
 			if (d == forest[i]->info)
 				dest = forest[i];
 		}
-
 		if (origin->set != dest->set) {
 			int minSet = min(origin->set, dest->set);
 			int maxSet = max(origin->set, dest->set);
@@ -519,12 +510,10 @@ vector<Vertex<T>*> Graph<T>::calculateKruskal() {
 				origin->path = dest;
 				cout << "Origin = " << origin->info.getId() << " ";
 			}
-
 			edges_accepted++;
 			cout << edges_accepted << endl;
 		}
 	}
-
 	return forest;
 }
 
@@ -568,6 +557,32 @@ vector<Vertex<T>*> Graph<T>::calculatePrim() {
 		}
 		make_heap(pq.begin(), pq.end(), vertex_greater_than<T>());
 	}
+	
+	// Clean redundant intersections
+	bool modified = false;
+	
+	// As long as we removed an intersection keep searching for new ones
+	do {
+		modified = false;
+		for (unsigned int i = 0; i < vertexSet.size(); i++) {
+			if (vertexSet[i]->info.getType() == INTERSECTION)
+			{
+				bool remove = true;
+				for (unsigned int x = 0; x < vertexSet.size(); x++){
+					if ( (x != i) && (vertexSet[x]->path == vertexSet[i]) ) {
+						remove = false;
+						break;
+					}	
+				}
+				if (remove){
+					removeVertex(vertexSet[i]->info);
+					modified = true;
+				}
+			}
+		}
+	} while (modified);
+	
+	
 	return this->vertexSet;
 }
 

@@ -421,6 +421,7 @@ void Cli::menu() {
 				errMsg = " Enter a valid area value ";
 			else {
 				result.selectArea(a.getRadius());
+				//graphInfo(result.getVertexSet(), false, true);
 				graphInfo(result.calculatePrim(), true, true);
 			}
 			break;
