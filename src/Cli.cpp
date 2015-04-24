@@ -351,9 +351,9 @@ void Cli::menu() {
 	char input;
 	bool exit = false;
 	const size_t menuCmdsSize = 7;
-	string menuCmds[menuCmdsSize] = { "Load graph", "Compute MST",
+	string menuCmds[menuCmdsSize] = { "Build graph", "MST",
 			"GraphViewer", "Info", "Vertices", "Edges\n", "Quit" };
-	string spacing = string((WIDTH - menuCmds[1].size() - 4) / 2, ' ');
+	string spacing = string((WIDTH - menuCmds[0].size() - 4) / 2, ' ');
 	string exitMsg = "Quit?";
 	string headerMsg = "Telefones";
 	string infMsg, errMsg;
@@ -391,10 +391,12 @@ void Cli::menu() {
 			cout << "Area (m^2): ";
 			if (!readArea())
 				errMsg = " Enter a valid area value ";
+			else if (graph.getVertexSet().size() == 0)
+				errMsg = " Empty or invalid graph ";
 			else {
 				result.selectArea(a.getRadius());
-				graphInfo(result.getVertexSet(), false, true);
-				//graphInfo(result.calculatePrim(), true, true);
+				//graphInfo(result.getVertexSet(), false, true);
+				graphInfo(result.calculatePrim(), true, true);
 			}
 			break;
 		case '3':

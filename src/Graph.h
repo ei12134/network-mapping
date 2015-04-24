@@ -157,7 +157,6 @@ template<class T>
 class Graph {
 	vector<Vertex<T> *> vertexSet;
 	vector<Vertex<T>*> centrals;
-	bool directed;
 	int numCycles;
 public:
 	Graph();
@@ -166,7 +165,6 @@ public:
 	vector<T> dfs() const;
 	vector<T> bfs(Vertex<T> *v) const;
 	vector<string> print(bool edges) const;
-	bool getDirected() const;
 	int getNumVertex() const;
 	int maxNewChildren(Vertex<T> *v, T &inf) const;
 	bool addVertex(const T & in);
@@ -178,7 +176,6 @@ public:
 	void dfsVisit();
 	void dfsVisit(Vertex<T> *v);
 	void clear();
-	void setDirected(bool directed);
 	vector<Vertex<T>*> calculateKruskal();
 	vector<Vertex<T>*> calculatePrim();
 	bool selectArea(double radius);
@@ -187,26 +184,25 @@ public:
 
 template<class T>
 Graph<T>::Graph() {
-	this->directed = false;
 }
 
 template<class T>
 Graph<T>::Graph(const Graph<T>& g) {
-  // Copy vertexes
-  for(size_t i = 0; i < g.vertexSet.size(); i++){
-	Vertex<T>* v = new Vertex<T>(g.vertexSet[i]->info);
-	vertexSet.push_back(v);
-  }
-  // Copy edges
-  for(size_t i = 0; i < g.vertexSet.size(); i++){
-	vector<Edge<T> > adj = g.vertexSet[i]->adj;
-	for (size_t x = 0; x < adj.size(); x++){
-	  T source = vertexSet[i]->info;
-	  T destiny = adj[x].dest->info;
-	  double distance = adj[x].distance;
-	  addEdge(source,destiny,distance);
+	// Copy vertexes
+	for(size_t i = 0; i < g.vertexSet.size(); i++){
+		addVertex(g.vertexSet[i]->info);
 	}
-  }
+	// Copy edges
+	for(size_t i = 0; i < g.vertexSet.size(); i++){
+		T source = g.vertexSet[i]->info;
+		vector<Edge<T> > cpyAdj =  g.vertexSet[i]->adj;
+		
+		for (size_t x = 0; x < cpyAdj.size(); x++){
+			T destiny = cpyAdj[x].dest->info;
+			double distance = cpyAdj[x].distance;
+			addEdge(source,destiny,distance);
+		}
+	}
 }
 
 
@@ -223,23 +219,13 @@ void Graph<T>::clear() {
 
 template<class T>
 Graph<T>::~Graph() {
-	//clear(); RECHECK !!
+	//RECHECK !!
 	clear();
 }
 
 template<class T>
 int Graph<T>::getNumVertex() const {
 	return vertexSet.size();
-}
-
-template<class T>
-bool Graph<T>::getDirected() const {
-	return directed;
-}
-
-template<class T>
-void Graph<T>::setDirected(bool directed) {
-	this->directed = directed;
 }
 
 template<class T>

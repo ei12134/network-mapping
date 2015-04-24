@@ -40,6 +40,7 @@ public:
 	void saveData();
 	vector<string> printVertices();
 	vector<string> printEdges();
+	void restoreResultGraph();
 	void setArea(double area);
 	void setRadius(double radius);
 	double getArea() const;

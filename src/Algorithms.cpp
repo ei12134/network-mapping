@@ -1,13 +1,17 @@
 #include "Algorithms.h"
 
 Algorithms::Algorithms() {
-  result = input;
 }
 
 void Algorithms::loadData(const char * vertexFileName,const char * edgesFileName) {
+	
+	// read input graph
 	input.clear();
 	readVertexes(vertexFileName);
 	readEdges(edgesFileName);
+	
+	// create a disposable copy
+	restoreResultGraph();
 }
 
 void Algorithms::readVertexes(const char *filePath) {
@@ -64,8 +68,6 @@ void Algorithms::readVertexes(const char *filePath) {
 				// add intersection to the graph
 				Intersection i(id, x, y, type);
 				input.addVertex(i);
-				// add copy to result graph
-				result.addVertex(i);
 			} catch (Exception<string> &e) {
 			}
 		}
@@ -167,6 +169,11 @@ double Algorithms::getArea() const {
 
 double Algorithms::getRadius() const {
 	return radius;
+}
+
+void Algorithms::restoreResultGraph(){
+	result.clear();
+	result = input;
 }
 
 inline bool is_Not_Number(const int & c) {
