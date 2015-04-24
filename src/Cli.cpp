@@ -362,13 +362,15 @@ void Cli::menu() {
 	do {
 		clearScreen();
 		displayHeader(headerMsg);
+		stringstream ss;
 		graph = a.getInputGraph();
 		result = a.getResultGraph();
 
 		for (size_t i = 0; i < menuCmdsSize; i++)
 			cmdMsg(spacing, (i + 1), menuCmds[i], 1);
 		cout << "\n";
-
+		
+		// Print pending messages
 		if (infMsg.size() > 0) {
 			infoMsg(infMsg, 2);
 			infMsg.clear();
@@ -385,18 +387,15 @@ void Cli::menu() {
 		switch (input) {
 		case '1':
 			a.loadData(DEFAULT_VERTICES_FILE, DEFAULT_EDGES_FILE);
-			infMsg = " The graph was successfully built ";
+			graph = a.getInputGraph();
+			ss << " " << graph.getNumVertex() << " vertexes and " << graph.getNumEdges() << " edges loaded ";
+			infMsg = ss.str();
 			break;
-		case '2':
-			cout << "Area (m^2): ";
-			if (!readArea())
-				errMsg = " Enter a valid area value ";
-			else if (graph.getVertexSet().size() == 0)
+		case '2':;
+			if (graph.getVertexSet().size() == 0)
 				errMsg = " Empty or invalid graph ";
 			else {
-				result.selectArea(a.getRadius());
-				//graphInfo(result.getVertexSet(), false, true);
-				graphInfo(result.calculatePrim(), true, true);
+				mstMenu();
 			}
 			break;
 		case '3':
@@ -549,6 +548,10 @@ void Cli::graphInfo(const vector<Vertex<Intersection> *> vertexSet, bool path, b
 			infFgI, 0);
 	cout << totalDistance << " m " << "\n\n\n";
 	
+	coloredString(true, "", "    Central   ", CLI_BLACK, false, CLI_RED, true, 1);
+	coloredString(true, "", "     House    ", CLI_GRAY, true, CLI_BLUE, true, 1);
+	coloredString(true, "", " Intersection ", CLI_BLACK, false, CLI_YELLOW, true, 2);
+	
 	if (gui) {
 		infoMsg(" Lauching graphical viewer ", 3);
 		coloredString(false, THREE_TABS, "Press any key to continue...", strFg,
@@ -562,50 +565,6 @@ void Cli::graphInfo(const vector<Vertex<Intersection> *> vertexSet, bool path, b
 
 	getKey();
 }
-
-/*void Cli::primInfo(const vector<Vertex<Intersection> *> vertexSet) {
-	string headerMsg = "Graph information";
-
-	// Get statistical values from the graph
-	int totalVertices = vertexSet.size();
-	int totalEdges = 0;
-	double totalDistance = 0.0;
-
-	for (size_t x = 0; x < vertexSet.size(); x++) {
-		vector<Edge<Intersection> > adj = vertexSet[x]->getAdj();
-		totalEdges += adj.size();
-		for (size_t i = 0; i < adj.size(); i++)
-			totalDistance += adj[i].getDistance();
-	}
-	// Non directed graph
-	totalDistance /= 2;
-
-	// Display data
-	clearScreen();
-	displayHeader(headerMsg);
-
-	string spacing = THREE_TABS + HALF_TAB;
-
-	coloredString(false, spacing, "Number of vertices: ", infBg, infBgI, infFg,
-			infFgI, 0);
-	cout << totalVertices << "\n";
-	coloredString(false, spacing, "Number of edges: ", infBg, infBgI, infFg,
-			infFgI, 0);
-	cout << totalEdges << "\n";
-	coloredString(false, spacing, "Total distance: ", infBg, infBgI, infFg,
-			infFgI, 0);
-	cout << totalDistance << " m " << "\n\n\n";
-	
-	
-	infoMsg(" Lauching graphical viewer ", 3);
-	coloredString(false, THREE_TABS, "Press any key to continue...", strFg,
-				  strFgI, strBg, strBgI, 0);
-	cout.flush();
-	graphViewer(vertexSet, path);
-	
-
-	getKey();
-}*/
 
 void Cli::graphViewer(const vector<Vertex<Intersection> *> vertexSet, bool path) {
 	stringstream ss;
@@ -687,9 +646,20 @@ void Cli::graphViewer(const vector<Vertex<Intersection> *> vertexSet, bool path)
 	gv->rearrange();
 }
 
-bool Cli::readArea() {
+bool Cli::readCentrals(int& centrals) {
 	string input;
-	double area;
+	getline(cin, input);
+	if (input.size() > 0 && is_All_Number(input) && input[0] != '0') {
+		stringstream ss;
+		ss << input;
+		ss >> centrals;
+		return true;
+	}
+	return false;
+}
+
+bool Cli::readArea(double& area) {
+	string input;
 	getline(cin, input);
 	if (input.size() > 0 && is_All_Number(input)) {
 		stringstream ss;
@@ -702,46 +672,101 @@ bool Cli::readArea() {
 	return false;
 }
 
-/*
-
- void displaygraph() {
- GraphViewer *gv = new GraphViewer(1024, 768, true);
-
- int idNo0 = 0, idNo1 = 1, idNo2 = 2;
- int idAresta0 = 0, idAresta1 = 1;
-
- // Add wallpaper
- gv->setBackground("background.jpg");
-
- // Create windows and define colours
- gv->createWindow(1024, 768);
- gv->defineVertexColor("blue");
- gv->defineEdgeColor("black");
-
- // Add nodes to the graph
- gv->addNode(idNo0);
- gv->addNode(idNo1);
- gv->addNode(idNo2);
-
- // Add bidirectional edge
- gv->addEdge(idAresta0, idNo0, idNo1, EdgeType::UNDIRECTED);
-
- // Remove node
- gv->removeNode(idNo1);
-
- // Add unidirectional edge
- gv->addEdge(idAresta1, idNo0, idNo2, EdgeType::DIRECTED);
-
- // Add label to vertex
- gv->setVertexLabel(idNo2, "Isto e um no");
-
- // Add label to edge
- gv->setEdgeLabel(idAresta1, "Isto e uma aresta");
-
- // Set vertex colour
- gv->setVertexColor(idNo2, "green");
- gv->setEdgeColor(idAresta1, "yellow");
-
- // Updates the graph display contents
- gv->rearrange();
- }*/
+void Cli::mstMenu() {
+	char input;
+	bool exit = false;
+	string header = "Minimum spanning tree";
+	int centrals = 1;
+	double area = DBL_MAX; // meters squared
+	string infMsg, errMsg;
+	string spacing = FOUR_TABS;
+	Graph<Intersection> result;
+	
+	const size_t cmdsSize = 4;
+	string cmds[cmdsSize] = { "Centrals: ", "Area: ",
+		"Compute MST", "Exit" };
+		do {
+			clearScreen();
+			displayHeader(header);
+			
+			// Convert values
+			string centralsStr;
+			stringstream ss;
+			ss << centrals;
+			centralsStr = ss.str();
+			
+			string areaStr;
+			if (centrals > 1 || area == DBL_MAX)
+				areaStr = "N/D";
+			else {
+				stringstream ss2;
+				ss2 << area;
+				areaStr = ss2.str();
+			}
+			
+			// Display commands
+			coloredString(false, spacing, "[1] ", infBg, infBgI, infFg, infFgI, 0);
+			textMsg("", cmds[0], 0);
+			coloredString(false, "", centralsStr, infBg, infBgI, infFg, infFgI, 1);
+			
+			coloredString(false, spacing, "[2] ", infBg, infBgI, infFg, infFgI, 0);
+			textMsg("", cmds[1], 0);
+			coloredString(false, "", areaStr, infBg, infBgI, infFg, infFgI, 2);
+			
+			for (size_t i = 2; i < cmdsSize; i++)
+				cmdMsg(spacing, (i + 1), cmds[i], 1);
+			cout << "\n";
+			
+			// Print pending messages
+			if (infMsg.size() > 0) {
+				infoMsg(infMsg, 2);
+				infMsg.clear();
+			}
+			if (errMsg.size() > 0) {
+				errorMsg(errMsg, 2);
+				errMsg.clear();
+			}
+			cout << endl << spacing << PROMPT_SYMBOL;
+			
+			input = getKey();
+			switch (input) {
+				case '1':
+					cout << "Quantity: ";
+					if (!readCentrals(centrals))
+						errMsg = " Enter a valid central amount number ";
+					else if (centrals > 1)
+						area = DBL_MAX;
+					break;
+				case '2':
+					cout << "Area (m^2): ";
+					if (!readArea(area))
+						errMsg = " Enter a valid area value ";
+					else 
+						centrals = 1;
+					break;
+				case '3':
+					// restore graph
+					a.restoreResultGraph();
+					result = a.getResultGraph();
+					
+					if (result.getVertexSet().size() == 0)
+						errMsg = " Empty or invalid graph ";
+					else {
+						// filter area when only one central is available 
+						if (centrals <= 1)
+							result.selectArea(a.getRadius());
+						//graphInfo(result.getVertexSet(), false, true);
+						graphInfo(result.calculatePrim(), true, true);
+					}
+					break;
+				case '4':
+					exit = true;
+					break;
+				case ESCAPE_KEY:
+					exit = true;
+					break;
+				default:
+					break;
+			}
+		} while (!exit);
+}

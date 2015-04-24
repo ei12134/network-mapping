@@ -3,6 +3,7 @@
 
 #include <cstdlib>
 #include <cstdio>
+#include <float.h>
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -144,7 +145,9 @@ public:
 
 	int displayContainer(vector<string> vec, string listName, string labels,
 			string sortStr);
-	bool readArea();
+	bool readArea(double& area);
+	bool readCentrals(int& centrals);
+	void mstMenu();
 };
 
 #endif /* CLI_H_ */

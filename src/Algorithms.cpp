@@ -1,6 +1,7 @@
 #include "Algorithms.h"
 
 Algorithms::Algorithms() {
+	setArea(DBL_MAX);
 }
 
 void Algorithms::loadData(const char * vertexFileName,const char * edgesFileName) {

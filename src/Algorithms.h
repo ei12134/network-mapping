@@ -2,6 +2,7 @@
 #define Algorithms_H_
 
 #include <iostream>
+#include <float.h>
 #include <fstream>
 #include <string>
 #include <sstream>

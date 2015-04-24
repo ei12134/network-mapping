@@ -166,6 +166,7 @@ public:
 	vector<T> bfs(Vertex<T> *v) const;
 	vector<string> print(bool edges) const;
 	int getNumVertex() const;
+	int getNumEdges() const;
 	int maxNewChildren(Vertex<T> *v, T &inf) const;
 	bool addVertex(const T & in);
 	bool addEdge(const T & sourc, const T & dest, double w);
@@ -226,6 +227,16 @@ Graph<T>::~Graph() {
 template<class T>
 int Graph<T>::getNumVertex() const {
 	return vertexSet.size();
+}
+
+template<class T>
+int Graph<T>::getNumEdges() const {
+	int edges = 0;
+	for (size_t x = 0; x < vertexSet.size(); x++) {
+		vector<Edge<Intersection> > adj = vertexSet[x]->getAdj();
+		edges += adj.size();
+	}
+	return edges;
 }
 
 template<class T>
