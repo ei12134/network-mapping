@@ -548,11 +548,10 @@ void Cli::graphInfo(const vector<Vertex<Intersection> *> vertexSet, bool path, b
 			infFgI, 0);
 	cout << totalDistance << " m " << "\n\n\n";
 	
-	coloredString(true, "", "    Central   ", CLI_BLACK, false, CLI_RED, true, 1);
-	coloredString(true, "", "     House    ", CLI_GRAY, true, CLI_BLUE, true, 1);
-	coloredString(true, "", " Intersection ", CLI_BLACK, false, CLI_YELLOW, true, 2);
-	
 	if (gui) {
+		coloredString(true, "", "    Central   ", CLI_BLACK, false, CLI_RED, true, 1);
+		coloredString(true, "", "     House    ", CLI_GRAY, true, CLI_BLUE, true, 1);
+		coloredString(true, "", " Intersection ", CLI_BLACK, false, CLI_YELLOW, true, 2);
 		infoMsg(" Lauching graphical viewer ", 3);
 		coloredString(false, THREE_TABS, "Press any key to continue...", strFg,
 					  strFgI, strBg, strBgI, 0);
