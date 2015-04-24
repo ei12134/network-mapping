@@ -20,6 +20,10 @@ int Intersection::getType() const {
 	return type;
 }
 
+void Intersection::setType(int type){
+	this->type = type;
+}
+
 double Intersection::distance(Intersection &i) {
 	return (sqrt(pow(x - i.x, 2) + pow(y - i.y, 2)));
 }

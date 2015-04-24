@@ -19,6 +19,7 @@ public:
     int getX() const;
     int getY() const;
     int getType() const;
+	void setType(int type);
     double distance(Intersection &i);
     bool operator ==(const Intersection &v2) const;
     friend std::ostream & operator <<(std::ostream &os, const Intersection &v);

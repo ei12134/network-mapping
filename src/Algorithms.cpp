@@ -1,6 +1,7 @@
 #include "Algorithms.h"
 
 Algorithms::Algorithms() {
+  result = input;
 }
 
 void Algorithms::loadData(const char * vertexFileName,const char * edgesFileName) {
@@ -121,10 +122,6 @@ void Algorithms::readEdges(const char *filePath) {
 				// add edge to the graph
 				input.addEdge(src, dst, distance);
 				input.addEdge(dst, src, distance);
-				
-				// add copy to result graph
-				result.addEdge(src, dst, distance);
-				result.addEdge(dst, src, distance);
 			} catch (Exception<string> &e) {
 			}
 		}

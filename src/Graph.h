@@ -156,11 +156,12 @@ struct edge_greater_than {
 template<class T>
 class Graph {
 	vector<Vertex<T> *> vertexSet;
-	Vertex<T>* central;
+	vector<Vertex<T>*> centrals;
 	bool directed;
 	int numCycles;
 public:
 	Graph();
+	Graph(const Graph<T>& g);
 	vector<Vertex<T> *> getVertexSet() const;
 	vector<T> dfs() const;
 	vector<T> bfs(Vertex<T> *v) const;
@@ -186,9 +187,28 @@ public:
 
 template<class T>
 Graph<T>::Graph() {
-	this->central = NULL;
 	this->directed = false;
 }
+
+template<class T>
+Graph<T>::Graph(const Graph<T>& g) {
+  // Copy vertexes
+  for(size_t i = 0; i < g.vertexSet.size(); i++){
+	Vertex<T>* v = new Vertex<T>(g.vertexSet[i]->info);
+	vertexSet.push_back(v);
+  }
+  // Copy edges
+  for(size_t i = 0; i < g.vertexSet.size(); i++){
+	vector<Edge<T> > adj = g.vertexSet[i]->adj;
+	for (size_t x = 0; x < adj.size(); x++){
+	  T source = vertexSet[i]->info;
+	  T destiny = adj[x].dest->info;
+	  double distance = adj[x].distance;
+	  addEdge(source,destiny,distance);
+	}
+  }
+}
+
 
 template<class T>
 void Graph<T>::clear() {
@@ -236,8 +256,8 @@ bool Graph<T>::addVertex(const T & in) {
 	Vertex<T> *v = new Vertex<T>(in);
 
 	// Add central pointer
-	if (v->info.getType() == CENTRAL && central == NULL)
-		central = v;
+	if (v->info.getType() == CENTRAL)
+		centrals.push_back(v);
 	vertexSet.push_back(v);
 	return true;
 }
@@ -446,75 +466,31 @@ void Graph<T>::dfsVisit(Vertex<T> *v) {
 
 template<class T>
 bool Graph<T>::selectArea(double radius) {
-	if (central == NULL)
+	if (centrals.size() == 0)
 		return false;
-//	cout << "Radius = " << radius << " pixels" << endl << endl;
-//	cout << "vertexsize= " << vertexSet.size() << "\n";
+	
+	// Remove all vertexes and edges outside the radius
 	for (int i = 0; i < (int) vertexSet.size(); i++) {
-//		cout << i << " - ";
-//		cout << vertexSet[i]->info.distance(central->info) << "\n";
-		if (vertexSet[i]->info.distance(central->info) > radius)
-			if (removeVertex(vertexSet[i]->info))
-				i--;
+	  bool remove = true;
+	  // Check distance to each central
+		for(int x = 0; x < (int) centrals.size(); x++){
+		  Vertex<T>* central = centrals[x];
+		  if (vertexSet[i]->info.distance(central->info) <= radius)
+			remove = false;
+		}
+		if (remove && removeVertex(vertexSet[i]->info))
+		  i--;
 	}
-	return true;
-}
 
-template<class T>
-vector<Vertex<T>*> Graph<T>::calculateKruskal() {
-	unsigned edges_accepted = 0;
-	if (vertexSet.size() == 0)
-		return this->vertexSet;
-	vector<Vertex<T>*> forest;
-	for (unsigned int i = 0; i < this->vertexSet.size(); i++) {
-		Vertex<T>* v = new Vertex<T>(this->vertexSet[i]->info);
-		v->set = i;
-		forest.push_back(v);
-	}
-	//Initialize the list of edges
-	vector<Edge<T> > allEdges;
-	for (unsigned int i = 0; i < this->vertexSet.size(); i++) {
-		Vertex<T>* v = this->vertexSet[i];
-		v->set = i;
-		for (unsigned int a = 0; a < v->adj.size(); a++)
-			allEdges.push_back(v->adj[a]);
-	}
-	//Make heap from vector
-	make_heap(allEdges.begin(), allEdges.end(), edge_greater_than<T>());
-	while (edges_accepted < vertexSet.size() - 1) {
-		sort_heap(allEdges.begin(), allEdges.end());
-		Edge<T> minEdge = allEdges[0]; // get edge with minimum weight
-		allEdges.erase(allEdges.begin());
-		//Get the vertices
-		T o = minEdge.orig->info;
-		T d = minEdge.dest->info;
-		Vertex<T>* origin = NULL;
-		Vertex<T>* dest = NULL;
-		for (unsigned int i = 0; i < forest.size(); i++) {
-			if (o == forest[i]->info)
-				origin = forest[i];
-			if (d == forest[i]->info)
-				dest = forest[i];
-		}
-		if (origin->set != dest->set) {
-			int minSet = min(origin->set, dest->set);
-			int maxSet = max(origin->set, dest->set);
-			for (unsigned int k = 0; k < forest.size(); k++) {
-				if (forest[k]->set == maxSet)
-					forest[k]->set = minSet;
-			}
-			if (dest->path == NULL) {
-				dest->path = origin;
-				cout << "Dest = " << origin->info.getId() << " ";
-			} else if (origin->path == NULL) {
-				origin->path = dest;
-				cout << "Origin = " << origin->info.getId() << " ";
-			}
-			edges_accepted++;
-			cout << edges_accepted << endl;
+	// Remove vertexes that ended up without connection
+	for (int i = 0; i < (int) vertexSet.size(); i++) {
+		if (vertexSet[i]->adj.size() == 0){
+			removeVertex(vertexSet[i]->info);
+				i--;
 		}
 	}
-	return forest;
+	
+	return true;
 }
 
 template<class T>

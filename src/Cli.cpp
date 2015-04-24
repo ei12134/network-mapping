@@ -393,8 +393,8 @@ void Cli::menu() {
 				errMsg = " Enter a valid area value ";
 			else {
 				result.selectArea(a.getRadius());
-				//graphInfo(result.getVertexSet(), false, true);
-				graphInfo(result.calculatePrim(), true, true);
+				graphInfo(result.getVertexSet(), false, true);
+				//graphInfo(result.calculatePrim(), true, true);
 			}
 			break;
 		case '3':
@@ -561,6 +561,50 @@ void Cli::graphInfo(const vector<Vertex<Intersection> *> vertexSet, bool path, b
 	getKey();
 }
 
+/*void Cli::primInfo(const vector<Vertex<Intersection> *> vertexSet) {
+	string headerMsg = "Graph information";
+
+	// Get statistical values from the graph
+	int totalVertices = vertexSet.size();
+	int totalEdges = 0;
+	double totalDistance = 0.0;
+
+	for (size_t x = 0; x < vertexSet.size(); x++) {
+		vector<Edge<Intersection> > adj = vertexSet[x]->getAdj();
+		totalEdges += adj.size();
+		for (size_t i = 0; i < adj.size(); i++)
+			totalDistance += adj[i].getDistance();
+	}
+	// Non directed graph
+	totalDistance /= 2;
+
+	// Display data
+	clearScreen();
+	displayHeader(headerMsg);
+
+	string spacing = THREE_TABS + HALF_TAB;
+
+	coloredString(false, spacing, "Number of vertices: ", infBg, infBgI, infFg,
+			infFgI, 0);
+	cout << totalVertices << "\n";
+	coloredString(false, spacing, "Number of edges: ", infBg, infBgI, infFg,
+			infFgI, 0);
+	cout << totalEdges << "\n";
+	coloredString(false, spacing, "Total distance: ", infBg, infBgI, infFg,
+			infFgI, 0);
+	cout << totalDistance << " m " << "\n\n\n";
+	
+	
+	infoMsg(" Lauching graphical viewer ", 3);
+	coloredString(false, THREE_TABS, "Press any key to continue...", strFg,
+				  strFgI, strBg, strBgI, 0);
+	cout.flush();
+	graphViewer(vertexSet, path);
+	
+
+	getKey();
+}*/
+
 void Cli::graphViewer(const vector<Vertex<Intersection> *> vertexSet, bool path) {
 	stringstream ss;
 	string label;
@@ -591,27 +635,29 @@ void Cli::graphViewer(const vector<Vertex<Intersection> *> vertexSet, bool path)
 	}
 	
 	if (!path){
-		// Add edges
-		int counter = 0;
-		for (size_t x = 0; x < vertexSet.size(); x++) {
-			
-			vector<Edge<Intersection> > adj = vertexSet[x]->getAdj();
-			for (size_t i = 0; i < adj.size(); i++) {
-				// Add edge
-				gv->addEdge(counter, vertexSet[x]->getInfo().getId(),
-							adj[i].getDest()->getInfo().getId(), EdgeType::UNDIRECTED);
-				
-				// Add label
-				ss << adj[i].getDistance();
-				label = ss.str() + " m";
-				gv->setEdgeLabel(counter, label);
-				counter++;
-				
-				// Clear & reset stringstream
-				ss.str(std::string());
-				ss.clear();
-			}
+	  // Add edges
+	  int counter = 0;
+	  for (size_t x = 0; x < vertexSet.size(); x++) {
+		
+		vector<Edge<Intersection> > adj = vertexSet[x]->getAdj();
+		for (size_t i = 0; i < adj.size(); i++) {
+		  // Add edge
+		  gv->addEdge(counter, vertexSet[x]->getInfo().getId(),
+					  adj[i].getDest()->getInfo().getId(), EdgeType::DIRECTED);
+		  
+		  // Add label
+		  
+		  ss << adj[i].getDistance();
+		  label = ss.str() + " m";
+		  gv->setEdgeLabel(counter, label);
+		  
+		  counter++;
+		  
+		  // Clear & reset stringstream
+		  ss.str(std::string());
+		  ss.clear();
 		}
+	  }
 	}
 	
 	else{
