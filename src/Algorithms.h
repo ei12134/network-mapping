@@ -1,21 +1,21 @@
-#ifndef Algorithms_H_
-#define Algorithms_H_
+#ifndef ALGORITHMS_H_
+#define ALGORITHMS_H_
 
-#include <iostream>
+#include <algorithm>
 #include <float.h>
 #include <fstream>
-#include <string>
-#include <sstream>
+#include <iostream>
 #include <math.h>
-#include <algorithm>
+#include <sstream>
+#include <string>
 #include <vector>
 
 #include "Exception.h"
 #include "Intersection.h"
 #include "Graph.h"
 
-#define DEFAULT_VERTICES_FILE "vertices.csv"
 #define DEFAULT_EDGES_FILE "edges.csv"
+#define DEFAULT_VERTICES_FILE "vertices.csv"
 
 using namespace std;
 
@@ -40,4 +40,4 @@ public:
 	void restoreResultGraph();
 };
 
-#endif
+#endif // ALGORITHMS_H_

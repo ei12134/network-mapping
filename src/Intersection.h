@@ -1,5 +1,5 @@
-#ifndef Intersection_H_
-#define Intersection_H_
+#ifndef INTERSECTION_H_
+#define INTERSECTION_H_
 
 #include <iostream>
 #include <math.h>
@@ -25,4 +25,4 @@ public:
     friend std::ostream & operator <<(std::ostream &os, const Intersection &v);
 };
 
-#endif
+#endif // INTERSECTION_H_

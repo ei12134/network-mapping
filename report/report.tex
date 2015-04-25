@@ -64,13 +64,10 @@ D = min(\sum_{i,j} dist(V_i,V_j))  \colon  V_i,V_j \in Output_k
 
 \section{Descrição da solução}
 Após análise do enunciado, verificou-se que um método adequado na resolução do problema será a utilização de um algoritmo que determine uma árvore de expansão mínima, já que se pretende passar fibra por todas as casas de forma o mais eficiente possível, ou seja, com menor gasto de cabo fibra óptica, reduzindo os custos para a empresa.
-Temos em mente a utilização de 3 algoritmos:
 
 \subsection{Prim}
 É um algoritmo ganancioso que encontra a árvore de expansão mínima para um grafo não direccionado, ou seja, este algoritmo tenta encontrar um subconjunto das arestas que formam uma árvore contendo todos os vértices onde o peso total de todas as arestas é mínimo.
 É mais eficiente do que o algoritmo de \emph{Kruskal} se o número de arestas for muito elevado em relação aos vértices.
-\subsection{Kruskal}
-Tal como o algoritmo de \emph{Prim} serve para encontrar a árvore de expansão mínima. É mais adequado do que o algoritmo \emph{Prim} para grafos mais simples com poucas arestas, pois usa estruturas mais simples.
 
 \subsection{Dijkstra}
 Com programação dinâmica é usado para encontrar os caminhos mais curtos entre os vértices de um grafo. Neste caso será necessário para procurar o caminho mais curto entre casas que tenham uma ou mais intersecções de ruas entre elas, ou seja, como uma intersecção de ruas pode não ser um vértice casa, pois não contém uma casa, selecciona-se o caminho mais curto entre dois vértices-casa para que este se torne como que uma aresta entre essas duas casas de forma a ser usado correctamente no algoritmo usado para determinar a árvore expansão de custo mínimo.

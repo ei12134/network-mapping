@@ -4,8 +4,8 @@
 #include <cmath>
 #include <float.h>
 #include <iostream>
-#include <list>
 #include <limits.h>
+#include <list>
 #include <math.h>
 #include <queue>
 #include <vector>
@@ -14,11 +14,11 @@ using namespace std;
 template<class T> class Edge;
 template<class T> class Graph;
 
-static const double PI = 3.141592653589793;
-const int NOT_VISITED = 0;
 const int BEING_VISITED = 1;
 const int DONE_VISITED = 2;
 const int INT_INFINITY = INT_MAX;
+const int NOT_VISITED = 0;
+static const double PI = 3.141592653589793;
 
 /*
  * ================================================================================================
@@ -538,4 +538,4 @@ vector<Vertex<T>*> Graph<T>::calculatePrim() {
 	return this->vertexSet;
 }
 
-#endif
+#endif // GRAPH_H_

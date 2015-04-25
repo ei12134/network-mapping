@@ -1,13 +1,13 @@
 #ifndef CLI_H_
 #define CLI_H_
 
-#include <cstdlib>
 #include <cstdio>
+#include <cstdlib>
 #include <float.h>
 #include <fstream>
-#include <sstream>
 #include <iostream>
 #include <math.h>
+#include <sstream>
 #include <stdio.h>
 #include <string>
 #include <vector>
