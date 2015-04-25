@@ -37,6 +37,7 @@ public:
 	Vertex(T in);
 	T getInfo() const;
 	vector<Edge<T> > getAdj() const;
+	int getGroup();
 	int getDist() const;
 	friend class Graph<T> ;
 	void addEdge(Vertex<T> *dest, double w);
@@ -50,6 +51,11 @@ template<class T>
 Vertex<T>::Vertex(T in) :
 		info(in), visited(false), dist(0), group(0) {
 	path = NULL;
+}
+
+template<class T>
+int Vertex<T>::getGroup() {
+	return group;
 }
 
 template<class T>
@@ -150,6 +156,13 @@ struct edge_greater_than {
 	}
 };
 
+template<class T>
+struct group_greater_than {
+	bool operator()(Vertex<T> *a, Vertex<T>* b) const {
+		return a->getGroup() > b->getGroup();
+	}
+};
+
 /* ================================================================================================
  * Class Graph
  * ================================================================================================
@@ -179,7 +192,9 @@ public:
 	void clear();
 	double bfMst(int centralIndex, double area);
 	vector<Vertex<T>*> calculatePrim();
-	vector<Vertex<T>*> calculateKruscal(unsigned int num_centrals);
+	vector<Vertex<T>*> calculateKruskal(unsigned int num_centrals);
+	void cleanIntersections(vector<Vertex<T>*> &vec);
+	void setCentral(vector<Vertex<T>*> &vec, unsigned int num_central);
 	bool selectArea(double radius);
 	~Graph();
 };
@@ -531,16 +546,61 @@ vector<Vertex<T>*> Graph<T>::calculatePrim() {
 }
 
 template<class T>
-vector<Vertex<T>*> Graph<T>::calculateKruscal(unsigned int num_centrals) {
-	vector<Vertex<T>*> FinalVec;
+void Graph<T>::cleanIntersections(vector<Vertex<T>*> &vec) {
+	bool reCheck;
+	// Clean redundant intersections
+	do {
+		reCheck = false;
+		for (unsigned int i = 0; i < vec.size(); i++) {
+			if (vec[i]->info.getType() == INTERSECTION) {
+				if (vec[i]->adj.size() == 0) {
+					delete vec[i];
+					vec.erase(vec.begin() + i--);
+					reCheck = true;
+				} else if (vec[i]->adj.size() == 1) { // intersection alone
+					Vertex<T>* v = vec[i]->adj[0].dest;
+					for (unsigned int x = 0; x < v->adj.size(); x++)
+						if (v->adj[x].dest == vec[i]) {
+							v->adj.erase(v->adj.begin() + x);
+							break;
+						}
+					delete vec[i];
+					vec.erase(vec.begin() + i--);
+					reCheck = true;
+				}
+			}
+		}
+	} while (reCheck);
+}
+
+template<class T>
+void Graph<T>::setCentral(vector<Vertex<T>*> &vec, unsigned int num_central) {
+	//group_greater_than
+	make_heap(vec.begin(), vec.end(), group_greater_than<T>());
+	sort_heap(vec.begin(), vec.end());
+
+	// left = 0 | right = last position .size() - 1
+		/*int left = 0, right = vp.size() - 1;
+		quickSort(vp, left, right, X);     // X -> vp ordered by x coordinates X is a constant defined in util.h
+
+		Ponto pLeft, pRight;
+		double distMin = np_DC(vp, left, right, pLeft, pRight);
+
+		vMP.push_back(pLeft);
+		vMP.push_back(pRight);*/
+}
+
+template<class T>
+vector<Vertex<T>*> Graph<T>::calculateKruskal(unsigned int num_centrals) {
+	vector<Vertex<T>*> finalVec;
 
 	if (num_centrals == 0 || vertexSet.size() == 0)
-		return FinalVec; // returns empty vector in case of error
+		return finalVec; // returns empty vector in case of error
 
 	for (unsigned int i = 0; i < this->vertexSet.size(); i++) {
 		Vertex<T>* v = new Vertex<T>(this->vertexSet[i]->info);
 		v->group = i;
-		FinalVec.push_back(v);
+		finalVec.push_back(v);
 	}
 
 	unsigned edges_accepted = 0;
@@ -566,35 +626,42 @@ vector<Vertex<T>*> Graph<T>::calculateKruscal(unsigned int num_centrals) {
 		T o = minEdge.orig->info;
 		T d = minEdge.dest->info;
 
-		Vertex<T>* origin = NULL;
-		Vertex<T>* dest = NULL;
+		//Vertex<T>* origin = NULL;
+		//Vertex<T>* dest = NULL;
 
 		int i_O;
 		int i_D;
-		for (unsigned int i = 0; i < FinalVec.size(); i++) {
-			if (o == FinalVec[i]->info) {
+		for (unsigned int i = 0; i < finalVec.size(); i++) {
+			if (o == finalVec[i]->info) {
 				i_O = i;
 			}
-			if (d == FinalVec[i]->info) {
+			if (d == finalVec[i]->info) {
 				i_D = i;
 			}
 		}
 
-		if (FinalVec[i_O]->group != FinalVec[i_D]->group) {		// para n ao haver ciclos
-			int minSet = min(FinalVec[i_O]->group, FinalVec[i_D]->group);
-			int maxSet = max(FinalVec[i_O]->group, FinalVec[i_D]->group);
-			for (unsigned int k = 0; k < FinalVec.size(); k++) { // change group of max to min(check if there is any diference without this)
-				if (FinalVec[k]->group == maxSet) {
-					FinalVec[k]->group = minSet;
+		if (finalVec[i_O]->group != finalVec[i_D]->group) {		// para n ao haver ciclos
+			int minSet = min(finalVec[i_O]->group, finalVec[i_D]->group);
+			int maxSet = max(finalVec[i_O]->group, finalVec[i_D]->group);
+			for (unsigned int k = 0; k < finalVec.size(); k++) { // change group of max to min(check if there is any diference without this)
+				if (finalVec[k]->group == maxSet) {
+					finalVec[k]->group = minSet;
 				}
 			}
-			FinalVec[i_O]->addEdge(FinalVec[i_D], minEdge.getDistance());
+			// assim para todos os vertices terem o numero certo de arestas
+			finalVec[i_O]->addEdge(finalVec[i_D], minEdge.getDistance());
+			finalVec[i_D]->addEdge(finalVec[i_O], minEdge.getDistance());
 			edges_accepted++;
-			cout << "Adding edge from vertex " << FinalVec[i_O]->info << " to vertex " << FinalVec[i_D]->info << endl;
+			cout << "Adding edge from vertex " << finalVec[i_O]->info << " to vertex " << finalVec[i_D]->info << endl;
 		}
 	}
 
-	return FinalVec;
+	// cleans redundant intersection
+	cleanIntersections(finalVec);
+
+	//setCentral(finalVec);
+
+	return finalVec;
 }
 
 #endif // GRAPH_H_

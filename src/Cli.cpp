@@ -764,7 +764,7 @@ void Cli::mstMenu() {
 							}
 						}*/
 						// display minimum spanning tree
-						graphInfo(a.getInputGraph().calculateKruscal(centralCount), true, true);
+						graphInfo(a.getInputGraph().calculateKruskal(centralCount), true, true);
 					}
 					
 					break;
