@@ -1,7 +1,6 @@
 #include "Algorithms.h"
 
 Algorithms::Algorithms() {
-	setArea(DBL_MAX);
 }
 
 void Algorithms::loadData(const char * vertexFileName,const char * edgesFileName) {
@@ -152,24 +151,6 @@ vector<string> Algorithms::printVertices() {
 vector<string> Algorithms::printEdges() {
 	vector<string> p = input.print(true);
 	return p;
-}
-
-void Algorithms::setArea(double area) {
-	this->area = area;
-	this->radius = sqrt(abs(area) / PI);
-}
-
-void Algorithms::setRadius(double radius) {
-	this->radius = radius;
-	this->area = radius * radius * PI;
-}
-
-double Algorithms::getArea() const {
-	return area;
-}
-
-double Algorithms::getRadius() const {
-	return radius;
 }
 
 void Algorithms::restoreResultGraph(){

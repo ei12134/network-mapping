@@ -521,7 +521,7 @@ void Cli::graphInfo(const vector<Vertex<Intersection> *> vertexSet, bool path, b
 	// Get statistical values from the graph
 	int totalVertices = vertexSet.size();
 	int totalEdges = 0;
-	double totalDistance = 0.0;
+	double totalDistance = 0.0;;
 
 	for (size_t x = 0; x < vertexSet.size(); x++) {
 		vector<Edge<Intersection> > adj = vertexSet[x]->getAdj();
@@ -553,18 +553,15 @@ void Cli::graphInfo(const vector<Vertex<Intersection> *> vertexSet, bool path, b
 		coloredString(true, "", "     House    ", CLI_GRAY, true, CLI_BLUE, true, 1);
 		coloredString(true, "", " Intersection ", CLI_BLACK, false, CLI_YELLOW, true, 2);
 		infoMsg(" Lauching graphical viewer ", 3);
-		coloredString(false, THREE_TABS, "Press any key to continue...", strFg,
+		coloredString(true, "", "Press any key to continue...", strFg,
 					  strFgI, strBg, strBgI, 0);
 		cout.flush();
 		graphViewer(vertexSet, path);
 	} else {
-		coloredString(false, THREE_TABS, "Press any key to continue...", strFg,
+		coloredString(true, "", "Press any key to continue...", strFg,
 					  strFgI, strBg, strBgI, 0);
 	}
-/* 	#ifdef _WIN32 
-	getKey();
-	getKey();
-	#endif */
+
 	getKey();
 }
 
@@ -667,8 +664,6 @@ bool Cli::readArea(double& area) {
 		stringstream ss;
 		ss << input;
 		ss >> area;
-		// Meters/Pixels ratio = 2
-		a.setArea(area / 2.0);
 		return true;
 	}
 	return false;
@@ -678,11 +673,10 @@ void Cli::mstMenu() {
 	char input;
 	bool exit = false;
 	string header = "Minimum spanning tree";
-	int centrals = 1;
+	int centralCount = 1;
 	double area = DBL_MAX; // meters squared
 	string infMsg, errMsg;
 	string spacing = FOUR_TABS;
-	Graph<Intersection> result;
 	
 	const size_t cmdsSize = 4;
 	string cmds[cmdsSize] = { "Centrals: ", "Area: ",
@@ -690,15 +684,22 @@ void Cli::mstMenu() {
 		do {
 			clearScreen();
 			displayHeader(header);
-			
-			// Convert values
-			string centralsStr;
+
+			// reset graphs & distances
+			Graph<Intersection> result = a.getResultGraph();
+			Graph<Intersection> bestResult = a.getResultGraph();
+
+			double distance = DBL_MAX;
+			double tmpDistance = DBL_MAX;
+
+			// convert values
+			string centralCountStr;
 			stringstream ss;
-			ss << centrals;
-			centralsStr = ss.str();
+			ss << centralCount;
+			centralCountStr = ss.str();
 			
 			string areaStr;
-			if (centrals > 1 || area == DBL_MAX)
+			if (centralCount > 1 || area == DBL_MAX)
 				areaStr = "N/D";
 			else {
 				stringstream ss2;
@@ -709,15 +710,16 @@ void Cli::mstMenu() {
 			// Display commands
 			coloredString(false, spacing, "[1] ", infBg, infBgI, infFg, infFgI, 0);
 			textMsg("", cmds[0], 0);
-			coloredString(false, "", centralsStr, infBg, infBgI, infFg, infFgI, 1);
+			coloredString(false, "", centralCountStr, infBg, infBgI, infFg, infFgI, 1);
 			
 			coloredString(false, spacing, "[2] ", infBg, infBgI, infFg, infFgI, 0);
 			textMsg("", cmds[1], 0);
-			coloredString(false, "", areaStr, infBg, infBgI, infFg, infFgI, 2);
+			coloredString(false, "", areaStr, infBg, infBgI, infFg, infFgI, 1);
 			
-			for (size_t i = 2; i < cmdsSize; i++)
+			cmdMsg(spacing, (2 + 1), cmds[2], 2);
+
+			for (size_t i = 3; i < cmdsSize; i++)
 				cmdMsg(spacing, (i + 1), cmds[i], 1);
-			cout << "\n";
 			
 			// Print pending messages
 			if (infMsg.size() > 0) {
@@ -734,9 +736,9 @@ void Cli::mstMenu() {
 			switch (input) {
 				case '1':
 					cout << "Quantity: ";
-					if (!readCentrals(centrals))
+					if (!readCentrals(centralCount))
 						errMsg = " Enter a valid central amount number ";
-					else if (centrals > 1)
+					else if (centralCount > 1)
 						area = DBL_MAX;
 					break;
 				case '2':
@@ -744,22 +746,27 @@ void Cli::mstMenu() {
 					if (!readArea(area))
 						errMsg = " Enter a valid area value ";
 					else 
-						centrals = 1;
+						centralCount = 1;
 					break;
 				case '3':
-					// restore graph
-					a.restoreResultGraph();
-					result = a.getResultGraph();
-					
 					if (result.getVertexSet().size() == 0)
 						errMsg = " Empty or invalid graph ";
 					else {
-						// filter area when only one central is available 
-						if (centrals <= 1)
-							result.selectArea(a.getRadius());
-						//graphInfo(result.getVertexSet(), false, true);
-						graphInfo(result.calculatePrim(), true, true);
+						for (size_t i = 0; i < result.getVertexSet().size(); i++) {
+							// restore graph
+							a.restoreResultGraph();
+							result = a.getResultGraph();
+							tmpDistance = result.bfMst(i,area);
+
+							if (tmpDistance < distance) {
+								distance = tmpDistance;
+								bestResult = result;
+							}
+						}
+						// display minimum spanning tree
+						graphInfo(bestResult.getVertexSet(), true, true);
 					}
+					
 					break;
 				case '4':
 					exit = true;

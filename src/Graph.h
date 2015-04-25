@@ -1,17 +1,20 @@
 #ifndef GRAPH_H_
 #define GRAPH_H_
 
-#include <vector>
-#include <queue>
+#include <cmath>
+#include <float.h>
+#include <iostream>
 #include <list>
 #include <limits.h>
-#include <cmath>
-#include <iostream>
+#include <math.h>
+#include <queue>
+#include <vector>
 using namespace std;
 
 template<class T> class Edge;
 template<class T> class Graph;
 
+static const double PI = 3.141592653589793;
 const int NOT_VISITED = 0;
 const int BEING_VISITED = 1;
 const int DONE_VISITED = 2;
@@ -162,11 +165,10 @@ public:
 	Graph();
 	Graph(const Graph<T>& g);
 	vector<Vertex<T> *> getVertexSet() const;
-	vector<T> dfs() const;
-	vector<T> bfs(Vertex<T> *v) const;
 	vector<string> print(bool edges) const;
 	int getNumVertex() const;
 	int getNumEdges() const;
+	double getTotalDistance() const;
 	int maxNewChildren(Vertex<T> *v, T &inf) const;
 	bool addVertex(const T & in);
 	bool addEdge(const T & sourc, const T & dest, double w);
@@ -177,7 +179,7 @@ public:
 	void dfsVisit();
 	void dfsVisit(Vertex<T> *v);
 	void clear();
-	vector<Vertex<T>*> calculateKruskal();
+	double bfMst(int centralIndex, double area);
 	vector<Vertex<T>*> calculatePrim();
 	bool selectArea(double radius);
 	~Graph();
@@ -237,6 +239,19 @@ int Graph<T>::getNumEdges() const {
 		edges += adj.size();
 	}
 	return edges;
+}
+
+template<class T>
+double Graph<T>::getTotalDistance() const{
+	double distance = 0;
+
+	for (size_t x = 0; x < vertexSet.size(); x++) {
+		vector<Edge<Intersection> > adj = vertexSet[x]->getAdj();
+		for (size_t i = 0; i < adj.size(); i++)
+			distance += adj[i].getDistance();
+	}
+
+	return distance/2; // undirected graph
 }
 
 template<class T>
@@ -342,68 +357,6 @@ bool Graph<T>::removeEdge(const T &sourc, const T &dest) {
 }
 
 template<class T>
-vector<T> Graph<T>::bfs(Vertex<T> *v) const {
-	vector<T> bS;
-	queue<Vertex<T>*> q;
-	q.push(v);
-	v->visited = true;
-
-	while (!q.empty()) {
-		Vertex<T>* v = q.front();
-		q.pop();
-		bS.push_back(v->info);
-
-		// find vertexes adjacent to v and adds them to the priority queue
-		for (size_t i = 0; i < v->adj.size(); i++) {
-			Vertex<T>* w = v->adj[i].dest;
-			if (!w->visited) {
-				w->visited = true;
-				q.push(w);
-			}
-		}
-		v->visited = true;
-	}
-	return bS;
-}
-
-template<class T>
-int Graph<T>::maxNewChildren(Vertex<T> *v, T &inf) const {
-	vector<T> res;
-	queue<Vertex<T> *> q;
-	queue<int> level;
-	int maxChildren = 0;
-	inf = v->info;
-	q.push(v);
-	level.push(0);
-	v->visited = true;
-	while (!q.empty()) {
-		Vertex<T> *v1 = q.front();
-		q.pop();
-		res.push_back(v1->info);
-		int l = level.front();
-		level.pop();
-		l++;
-		int nChildren = 0;
-		typename vector<Edge<T> >::iterator it = v1->adj.begin();
-		typename vector<Edge<T> >::iterator ite = v1->adj.end();
-		for (; it != ite; it++) {
-			Vertex<T> *d = it->dest;
-			if (d->visited == false) {
-				d->visited = true;
-				q.push(d);
-				level.push(l);
-				nChildren++;
-			}
-		}
-		if (nChildren > maxChildren) {
-			maxChildren = nChildren;
-			inf = v1->info;
-		}
-	}
-	return maxChildren;
-}
-
-template<class T>
 vector<string> Graph<T>::print(bool edges) const {
 	vector<string> p;
 
@@ -488,6 +441,32 @@ bool Graph<T>::selectArea(double radius) {
 	}
 	
 	return true;
+}
+
+
+template<class T>
+double Graph<T>::bfMst(int centralIndex, double area) {
+				
+	// Select centrals
+	// getTotalDistance
+
+	if (vertexSet[centralIndex]->info.getType() == HOUSE){
+		vertexSet[centralIndex]->info.setType(CENTRAL);
+		centrals.push_back(vertexSet[centralIndex]);
+	}
+	else
+		return DBL_MAX; // couldn't set central
+
+
+	// filter area when only one central is available 
+	//if (central <=1)
+	// Divide area by meters/pixels ratio = 2
+	double radius = sqrt(abs((area / 2.0) / PI));
+	selectArea(radius); // requires centrals.size() != 0
+
+	calculatePrim();
+
+	return this->getTotalDistance();
 }
 
 template<class T>

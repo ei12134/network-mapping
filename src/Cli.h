@@ -150,4 +150,4 @@ public:
 	void mstMenu();
 };
 
-#endif /* CLI_H_ */
+#endif // CLI_H_
