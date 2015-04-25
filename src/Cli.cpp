@@ -515,6 +515,8 @@ int Cli::displayContainer(vector<string> vec, string listName, string labels,
 	return 0;
 }
 
+
+// take out path
 void Cli::graphInfo(const vector<Vertex<Intersection> *> vertexSet, bool path, bool gui) {
 	string headerMsg = "Graph information";
 
@@ -594,7 +596,7 @@ void Cli::graphViewer(const vector<Vertex<Intersection> *> vertexSet, bool path)
 		ss.clear();
 	}
 	
-	if (!path){
+	//if (!path){
 	  // Add edges
 	  int counter = 0;
 	  for (size_t x = 0; x < vertexSet.size(); x++) {
@@ -618,9 +620,7 @@ void Cli::graphViewer(const vector<Vertex<Intersection> *> vertexSet, bool path)
 		  ss.clear();
 		}
 	  }
-	}
-	
-	else{
+	/*}else{
 		int counter = 0;
 		for (size_t x = 0; x < vertexSet.size(); x++) {
 			if (vertexSet[x]->path != NULL) {
@@ -639,7 +639,7 @@ void Cli::graphViewer(const vector<Vertex<Intersection> *> vertexSet, bool path)
 			ss.str(std::string());
 			ss.clear();
 		}
-	}
+	}*/
 	
 	// Redraw
 	gv->rearrange();
@@ -749,10 +749,10 @@ void Cli::mstMenu() {
 						centralCount = 1;
 					break;
 				case '3':
-					if (result.getVertexSet().size() == 0)
+					if (a.getInputGraph().getVertexSet().size() == 0)
 						errMsg = " Empty or invalid graph ";
 					else {
-						for (size_t i = 0; i < result.getVertexSet().size(); i++) {
+						/*for (size_t i = 0; i < result.getVertexSet().size(); i++) {
 							// restore graph
 							a.restoreResultGraph();
 							result = a.getResultGraph();
@@ -762,9 +762,9 @@ void Cli::mstMenu() {
 								distance = tmpDistance;
 								bestResult = result;
 							}
-						}
+						}*/
 						// display minimum spanning tree
-						graphInfo(bestResult.getVertexSet(), true, true);
+						graphInfo(a.getInputGraph().calculateKruscal(centralCount), true, true);
 					}
 					
 					break;
