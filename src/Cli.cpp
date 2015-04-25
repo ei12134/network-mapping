@@ -166,7 +166,7 @@ char Cli::getKey() {
 
 // no need to read the return character nor mouse events
 	DWORD mode = !ENABLE_ECHO_INPUT | !ENABLE_LINE_INPUT
-	| !ENABLE_PROCESSED_INPUT | !ENABLE_MOUSE_INPUT;
+	| !ENABLE_PROCESSED_INPUT | !ENABLE_MOUSE_INPUT | !ENABLE_WINDOW_INPUT;
 
 	SetConsoleMode(hConsoleInput, mode);
 
@@ -176,7 +176,7 @@ char Cli::getKey() {
 
 	do {
 		ReadConsoleInput(hConsoleInput, &lpBuffer, 1, &lpNumberOfEventsRead);
-	}while (!lpBuffer.Event.KeyEvent.bKeyDown);
+	} while (!(lpBuffer.EventType == KEY_EVENT) || !(lpBuffer.Event.KeyEvent.bKeyDown));
 
 	specialKey = lpBuffer.Event.KeyEvent.wVirtualScanCode;
 	char key = 0;
@@ -561,7 +561,10 @@ void Cli::graphInfo(const vector<Vertex<Intersection> *> vertexSet, bool path, b
 		coloredString(false, THREE_TABS, "Press any key to continue...", strFg,
 					  strFgI, strBg, strBgI, 0);
 	}
-
+/* 	#ifdef _WIN32 
+	getKey();
+	getKey();
+	#endif */
 	getKey();
 }
 
