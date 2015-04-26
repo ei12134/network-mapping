@@ -719,7 +719,9 @@ void Cli::mstMenu() {
 						errMsg = " Disconnected graph ";
 					else {
 						// display resultant minimum spanning tree
-						graphInfo(a.getInputGraph().calculateKruskal(centralCount));
+						result = a.getInputGraph().calculateKruskal(centralCount);
+						result.selectArea(area);
+						graphInfo(result.getVertexSet());
 					}		
 					break;
 				case '4':

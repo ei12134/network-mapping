@@ -40,12 +40,18 @@ public:
 	int getGroup();
 	int getDist() const;
 	friend class Graph<T> ;
+	double distance(Vertex<T>* v);
 	void addEdge(Vertex<T> *dest, double w);
 	bool removeEdgeTo(Vertex<T> *d);
 	vector<string> print(bool edges) const;
 	Vertex* path;
 	bool operator<(const Vertex<T> vertex);
 };
+
+template<class T>
+double Vertex<T>::distance(Vertex<T>* v) {
+	return info.distance(v->info);
+}
 
 template<class T>
 Vertex<T>::Vertex(T in) :
@@ -172,6 +178,7 @@ class Graph {
 	vector<Vertex<T> *> vertexSet;
 	vector<Vertex<T>*> centrals;
 	int numCycles;
+	Graph(vector<Vertex<T> *>);
 public:
 	Graph();
 	Graph(const Graph<T>& g);
@@ -186,7 +193,7 @@ public:
 	bool addEdge(const T & sourc, const T & dest, double w);
 	bool removeVertex(const T &in);
 	bool removeEdge(const T &sourc, const T &dest);
-	
+
 	vector<T> bfs(Vertex<T> *v) const;
 	vector<T> dfs() const;
 	void dfs(Vertex<T> *v, vector<T> &res) const;
@@ -198,15 +205,35 @@ public:
 	void clear();
 	double bfMst(int centralIndex, double area);
 	vector<Vertex<T>*> calculatePrim();
-	vector<Vertex<T>*> calculateKruskal(unsigned int num_centrals);
+	Graph<T> calculateKruskal(unsigned int num_centrals);
 	void cleanIntersections(vector<Vertex<T>*> &vec);
-	void setCentral(vector<Vertex<T>*> &vec, unsigned int num_central);
-	bool selectArea(double radius);
+	void setCentral(vector<Vertex<T>*> &vec);
+	bool selectArea(double area);
 	~Graph();
 };
 
 template<class T>
 Graph<T>::Graph() {
+
+}
+
+template<class T>
+Graph<T>::Graph(vector<Vertex<T> *> v) {
+	// Copy vertexes
+	for (size_t i = 0; i < v.size(); i++) {
+		addVertex(v[i]->info);
+	}
+	// Copy edges
+	for (size_t i = 0; i < v.size(); i++) {
+		T source = v[i]->info;
+		vector<Edge<T> > cpyAdj = v[i]->adj;
+
+		for (size_t x = 0; x < cpyAdj.size(); x++) {
+			T destiny = cpyAdj[x].dest->info;
+			double distance = cpyAdj[x].distance;
+			addEdge(source, destiny, distance);
+		}
+	}
 }
 
 template<class T>
@@ -274,7 +301,7 @@ vector<Vertex<T> *> Graph<T>::getVertexSet() const {
 }
 
 template<class T>
-bool Graph<T>::getConnected() const{
+bool Graph<T>::getConnected() const {
 	// only one vertex means it is conected
 	if (vertexSet.size() < 2)
 		return true;
@@ -441,33 +468,33 @@ void Graph<T>::dfsVisit(Vertex<T> *v) {
 	v->processing = false;
 }
 
-template <class T>
+template<class T>
 vector<T> Graph<T>::dfs() const {
-	typename vector<Vertex<T>*>::const_iterator it= vertexSet.begin();
-	typename vector<Vertex<T>*>::const_iterator ite= vertexSet.end();
-	for (; it !=ite; it++)
-		(*it)->visited=false;
+	typename vector<Vertex<T>*>::const_iterator it = vertexSet.begin();
+	typename vector<Vertex<T>*>::const_iterator ite = vertexSet.end();
+	for (; it != ite; it++)
+		(*it)->visited = false;
 	vector<T> res;
-	it=vertexSet.begin();
-	for (; it !=ite; it++)
-	    if ( (*it)->visited==false )
-	    	dfs(*it,res);
+	it = vertexSet.begin();
+	for (; it != ite; it++)
+		if ((*it)->visited == false)
+			dfs(*it, res);
 	return res;
 }
 
-template <class T>
-void Graph<T>::dfs(Vertex<T> *v,vector<T> &res) const {
+template<class T>
+void Graph<T>::dfs(Vertex<T> *v, vector<T> &res) const {
 	v->visited = true;
 	res.push_back(v->info);
-	typename vector<Edge<T> >::iterator it= (v->adj).begin();
-	typename vector<Edge<T> >::iterator ite= (v->adj).end();
-	for (; it !=ite; it++)
-	    if ( it->dest->visited == false ){
-	    	dfs(it->dest, res);
-	    }
+	typename vector<Edge<T> >::iterator it = (v->adj).begin();
+	typename vector<Edge<T> >::iterator ite = (v->adj).end();
+	for (; it != ite; it++)
+		if (it->dest->visited == false) {
+			dfs(it->dest, res);
+		}
 }
 
-template <class T>
+template<class T>
 vector<T> Graph<T>::bfs(Vertex<T> *v) const {
 	vector<T> res;
 	queue<Vertex<T> *> q;
@@ -477,12 +504,12 @@ vector<T> Graph<T>::bfs(Vertex<T> *v) const {
 		Vertex<T> *v1 = q.front();
 		q.pop();
 		res.push_back(v1->info);
-		typename vector<Edge<T> >::iterator it=v1->adj.begin();
-		typename vector<Edge<T> >::iterator ite=v1->adj.end();
-		for (; it!=ite; it++) {
+		typename vector<Edge<T> >::iterator it = v1->adj.begin();
+		typename vector<Edge<T> >::iterator ite = v1->adj.end();
+		for (; it != ite; it++) {
 			Vertex<T> *d = it->dest;
-			if (d->visited==false) {
-				d->visited=true;
+			if (d->visited == false) {
+				d->visited = true;
 				q.push(d);
 			}
 		}
@@ -491,9 +518,11 @@ vector<T> Graph<T>::bfs(Vertex<T> *v) const {
 }
 
 template<class T>
-bool Graph<T>::selectArea(double radius) {
-	if (centrals.size() == 0)
+bool Graph<T>::selectArea(double area) {
+	if (centrals.size() == 0 || area == DBL_MAX)
 		return false;
+
+	double radius = sqrt(abs((area / 2.0) / PI));
 
 	// Remove all vertexes and edges outside the radius
 	for (int i = 0; i < (int) vertexSet.size(); i++) {
@@ -612,14 +641,15 @@ vector<Vertex<T>*> Graph<T>::calculatePrim() {
 template<class T>
 void Graph<T>::cleanIntersections(vector<Vertex<T>*> &vec) {
 	bool reCheck;
-	// clean redundant intersections
+	// Clean redundant intersections
 	do {
 		reCheck = false;
 		for (unsigned int i = 0; i < vec.size(); i++) {
 			if (vec[i]->info.getType() == INTERSECTION) {
 				if (vec[i]->adj.size() == 0) {
 					delete vec[i];
-					vec.erase(vec.begin() + i--);
+					vec.erase(vec.begin() + i);
+					i--;
 					reCheck = true;
 				} else if (vec[i]->adj.size() == 1) { // intersection alone
 					Vertex<T>* v = vec[i]->adj[0].dest;
@@ -629,7 +659,8 @@ void Graph<T>::cleanIntersections(vector<Vertex<T>*> &vec) {
 							break;
 						}
 					delete vec[i];
-					vec.erase(vec.begin() + i--);
+					vec.erase(vec.begin() + i);
+					i--;
 					reCheck = true;
 				}
 			}
@@ -638,46 +669,77 @@ void Graph<T>::cleanIntersections(vector<Vertex<T>*> &vec) {
 }
 
 template<class T>
-void Graph<T>::setCentral(vector<Vertex<T>*> &vec, unsigned int num_central) {
-	//group_greater_than
-	make_heap(vec.begin(), vec.end(), group_greater_than<T>());
-	sort_heap(vec.begin(), vec.end());
+void Graph<T>::setCentral(vector<Vertex<T>*> &vec) {
+	if (vec.size() < 1)
+		return;
 
-	// left = 0 | right = last position .size() - 1
-		/*int left = 0, right = vp.size() - 1;
-		quickSort(vp, left, right, X);     // X -> vp ordered by x coordinates X is a constant defined in util.h
+	sort(vec.begin(), vec.end(), group_greater_than<T>());
 
-		Ponto pLeft, pRight;
-		double distMin = np_DC(vp, left, right, pLeft, pRight);
+	vector<int> vecStartPos;
+	vecStartPos.push_back(0);
+	unsigned int num_centrals = 1;
+	for (unsigned x = 1; x < vec.size(); x++) {
+		if (vec[x - 1]->group != vec[x]->group) {
+			vecStartPos.push_back(x);
+			num_centrals++;
+		}
+	}
+	vecStartPos.push_back((int) vec.size());
 
-		vMP.push_back(pLeft);
-		vMP.push_back(pRight);*/
+	unsigned int temp = 0;
+	Vertex<T>* v;
+	while (temp < num_centrals) {
+		cout << " iteration -> " << temp << endl;
+		double distMin = DBL_MAX;
+		double maxDist = 0;
+		v = vec[vecStartPos[temp]];
+		for (int x = vecStartPos[temp]; x < vecStartPos[temp + 1] - 1; x++) {
+			maxDist = 0;
+			for (int y = vecStartPos[temp] + 1; y < vecStartPos[temp + 1]; y++) {
+				double tempDist = vec[x]->distance(vec[y]);
+				if (tempDist > maxDist)
+					maxDist = tempDist;
+			}
+			if (distMin > maxDist) {
+				distMin = maxDist;
+				v = vec[x];
+			}
+		}
+		v->info.setType(CENTRAL);
+		temp++;
+	}
 }
 
 template<class T>
-vector<Vertex<T>*> Graph<T>::calculateKruskal(unsigned int num_centrals) {
+Graph<T> Graph<T>::calculateKruskal(unsigned int num_centrals) {
 	vector<Vertex<T>*> finalVec;
 
 	if (num_centrals == 0 || vertexSet.size() == 0)
 		return finalVec; // returns empty vector in case of error
 
+// put in edge for
+	int contHouses = 0;
 	for (unsigned int i = 0; i < this->vertexSet.size(); i++) {
-		Vertex<T>* v = new Vertex<T>(this->vertexSet[i]->info);
-		v->group = i;
-		finalVec.push_back(v);
+		if (vertexSet[i]->info.getType() == HOUSE)
+			contHouses++;
 	}
+	if (contHouses < num_centrals)
+		return finalVec;
 
 	unsigned edges_accepted = 0;
-	// initialize the list of edges
+
+	//list of edges
 	vector<Edge<T> > allEdges;
 	for (unsigned int i = 0; i < this->vertexSet.size(); i++) {
 		Vertex<T>* v = this->vertexSet[i];
+		Vertex<T>* ver = new Vertex<T>(v->info);
+		ver->group = i;
+		finalVec.push_back(ver);
 		v->group = i;
 		for (unsigned int a = 0; a < v->adj.size(); a++)
 			allEdges.push_back(v->adj[a]);
 	}
 
-	// make heap from vector
 	make_heap(allEdges.begin(), allEdges.end(), edge_greater_than<T>());
 
 	while (edges_accepted < vertexSet.size() - num_centrals) {
@@ -686,7 +748,7 @@ vector<Vertex<T>*> Graph<T>::calculateKruskal(unsigned int num_centrals) {
 		Edge<T> minEdge = allEdges[0];		// get edge with minimum weight
 		allEdges.erase(allEdges.begin());
 
-		// get the vertices
+		//Get the vertices
 		T o = minEdge.orig->info;
 		T d = minEdge.dest->info;
 
@@ -720,12 +782,12 @@ vector<Vertex<T>*> Graph<T>::calculateKruskal(unsigned int num_centrals) {
 		}
 	}
 
-	// cleans redundant intersections
-	cleanIntersections(finalVec);
+// cleans redundant intersection
 
-	//setCentral(finalVec);
+	setCentral(finalVec);
 
-	return finalVec;
+	//cleanIntersections(finalVec);
+	return Graph(finalVec);
 }
 
 #endif // GRAPH_H_
