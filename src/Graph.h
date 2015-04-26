@@ -186,6 +186,11 @@ public:
 	bool addEdge(const T & sourc, const T & dest, double w);
 	bool removeVertex(const T &in);
 	bool removeEdge(const T &sourc, const T &dest);
+	
+	vector<T> bfs(Vertex<T> *v) const;
+	vector<T> dfs() const;
+	void dfs(Vertex<T> *v, vector<T> &res) const;
+
 	int getNumCycles();
 	bool isDAG();
 	void dfsVisit();
@@ -225,10 +230,6 @@ Graph<T>::Graph(const Graph<T>& g) {
 
 template<class T>
 void Graph<T>::clear() {
-// 	for (unsigned x = 0; x < vertexSet.size(); x++) {
-// 		delete vertexSet[x];
-// 	}
-// 	vertexSet.clear();
 	typename vector<Vertex<T>*>::iterator it = vertexSet.begin();
 	typename vector<Vertex<T>*>::iterator ite = vertexSet.end();
 	vertexSet.erase(it, ite);
@@ -236,7 +237,6 @@ void Graph<T>::clear() {
 
 template<class T>
 Graph<T>::~Graph() {
-	//RECHECK !!
 	clear();
 }
 
@@ -274,11 +274,16 @@ vector<Vertex<T> *> Graph<T>::getVertexSet() const {
 }
 
 template<class T>
-bool Graph<T>::getConnected() const {
-	for (size_t i = 0; i < vertexSet.size(); i++) {
-		if(vertexSet[i]->getAdj().size() == 0)
-			return false;
-	}
+bool Graph<T>::getConnected() const{
+	// only one vertex means it is conected
+	if (vertexSet.size() < 2)
+		return true;
+
+	// make a bfs visit
+	vector<T> vS = bfs(vertexSet[0]);
+	if (vS.size() != vertexSet.size())
+		return false;
+
 	return true;
 }
 
@@ -436,6 +441,55 @@ void Graph<T>::dfsVisit(Vertex<T> *v) {
 	v->processing = false;
 }
 
+template <class T>
+vector<T> Graph<T>::dfs() const {
+	typename vector<Vertex<T>*>::const_iterator it= vertexSet.begin();
+	typename vector<Vertex<T>*>::const_iterator ite= vertexSet.end();
+	for (; it !=ite; it++)
+		(*it)->visited=false;
+	vector<T> res;
+	it=vertexSet.begin();
+	for (; it !=ite; it++)
+	    if ( (*it)->visited==false )
+	    	dfs(*it,res);
+	return res;
+}
+
+template <class T>
+void Graph<T>::dfs(Vertex<T> *v,vector<T> &res) const {
+	v->visited = true;
+	res.push_back(v->info);
+	typename vector<Edge<T> >::iterator it= (v->adj).begin();
+	typename vector<Edge<T> >::iterator ite= (v->adj).end();
+	for (; it !=ite; it++)
+	    if ( it->dest->visited == false ){
+	    	dfs(it->dest, res);
+	    }
+}
+
+template <class T>
+vector<T> Graph<T>::bfs(Vertex<T> *v) const {
+	vector<T> res;
+	queue<Vertex<T> *> q;
+	q.push(v);
+	v->visited = true;
+	while (!q.empty()) {
+		Vertex<T> *v1 = q.front();
+		q.pop();
+		res.push_back(v1->info);
+		typename vector<Edge<T> >::iterator it=v1->adj.begin();
+		typename vector<Edge<T> >::iterator ite=v1->adj.end();
+		for (; it!=ite; it++) {
+			Vertex<T> *d = it->dest;
+			if (d->visited==false) {
+				d->visited=true;
+				q.push(d);
+			}
+		}
+	}
+	return res;
+}
+
 template<class T>
 bool Graph<T>::selectArea(double radius) {
 	if (centrals.size() == 0)
@@ -529,10 +583,10 @@ vector<Vertex<T>*> Graph<T>::calculatePrim() {
 		make_heap(pq.begin(), pq.end(), vertex_greater_than<T>());
 	}
 
-	// Clean redundant intersections
+	// clean redundant intersections
 	bool modified = false;
 
-	// As long as we removed an intersection keep searching for new ones
+	// as long as we removed an intersection keep searching for new ones
 	do {
 		modified = false;
 		for (unsigned int i = 0; i < vertexSet.size(); i++) {
@@ -558,7 +612,7 @@ vector<Vertex<T>*> Graph<T>::calculatePrim() {
 template<class T>
 void Graph<T>::cleanIntersections(vector<Vertex<T>*> &vec) {
 	bool reCheck;
-	// Clean redundant intersections
+	// clean redundant intersections
 	do {
 		reCheck = false;
 		for (unsigned int i = 0; i < vec.size(); i++) {
@@ -614,7 +668,7 @@ vector<Vertex<T>*> Graph<T>::calculateKruskal(unsigned int num_centrals) {
 	}
 
 	unsigned edges_accepted = 0;
-	//Initialize the list of edges
+	// initialize the list of edges
 	vector<Edge<T> > allEdges;
 	for (unsigned int i = 0; i < this->vertexSet.size(); i++) {
 		Vertex<T>* v = this->vertexSet[i];
@@ -623,7 +677,7 @@ vector<Vertex<T>*> Graph<T>::calculateKruskal(unsigned int num_centrals) {
 			allEdges.push_back(v->adj[a]);
 	}
 
-	//Make heap from vector
+	// make heap from vector
 	make_heap(allEdges.begin(), allEdges.end(), edge_greater_than<T>());
 
 	while (edges_accepted < vertexSet.size() - num_centrals) {
@@ -632,7 +686,7 @@ vector<Vertex<T>*> Graph<T>::calculateKruskal(unsigned int num_centrals) {
 		Edge<T> minEdge = allEdges[0];		// get edge with minimum weight
 		allEdges.erase(allEdges.begin());
 
-		//Get the vertices
+		// get the vertices
 		T o = minEdge.orig->info;
 		T d = minEdge.dest->info;
 
@@ -666,7 +720,7 @@ vector<Vertex<T>*> Graph<T>::calculateKruskal(unsigned int num_centrals) {
 		}
 	}
 
-	// cleans redundant intersection
+	// cleans redundant intersections
 	cleanIntersections(finalVec);
 
 	//setCentral(finalVec);

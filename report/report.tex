@@ -23,7 +23,7 @@ No âmbito da unidade curricular de Concepção e Análise de Algoritmos foi-nos pro
 
 \section{Formalização do problema}
 \subsection{Dados de entrada}
-Mapeia-se uma área, usando coordenadas geográficas que representem intersecções entre ruas ou coordenadas de casas. Para este efeito, usam-se dados extraídos do OpenStreetMap\footnote{https://www.openstreetmap.org/\#map=17/41.83596/-8.42833} sobre a área seleccionada.
+Mapeia-se uma área, usando coordenadas geográficas que representem intersecções entre ruas ou coordenadas de casas. Para este efeito, usam-se dados extraídos do OpenStreetMap\footnote{Mapa exemplo em anexo} sobre a área seleccionada.
 
 Construção de um grafo a partir de vértices-casa, cruzamento ou central $V$ e arestas $E$ que representam as distâncias entre as casas ligadas pelas ruas.
 
@@ -35,42 +35,45 @@ G<V,E>
 
 Pretende-se guardar os dados em dois ficheiros distintos, \texttt{vertexes.csv}, onde temos os números identificativos das casas e intersecções de ruas, vértices do grafo e \texttt{edges.csv} onde se estabelecem as relações entre os vértices do ficheiro anterior e respectivas distâncias, por forma a caracterizar as arestas do grafo.\vspace{0,50cm}
 
-Os vértices são guardados um por cada linha e são separados por ponto e vírgula dos valores posicionais $x$ e $y$ e de um valor que determina se o vértice é intersecção de rua - 0, casa - 1 ou central - 2.
+É lido um vértice por cada linha, contendo o $id$ e são separados por ponto e vírgula dos valores posicionais $x$ e $y$ e de um valor que determina se o vértice é uma intersecção de ruas - 0 ou uma casa - 1.
 
 Exemplo: \texttt{3;264;250;1} (o vértice número 3 é uma casa com coordenadas $x$ e $y$ de 264 e 250 píxeis respectivamente)\vspace{0,50cm}
 
-As arestas são guardadas uma por cada linha, sendo os primeiros dois valores os números identificativos dos vértices e o último a distância em metros entre eles.
+É lida uma aresta por cada linha, sendo os primeiros dois valores os números identificativos dos vértices e o último a distância em metros entre eles.
 
 Exemplo: \texttt{2;3;150} (o vértice número 3 dista 150 metros do vértice 2)
 
 \subsection{Limites e condições de aplicação}
-Na lista final, não poderá existir repetição de pares de vértices, ou seja, arestas repetidas e todos os vértices-casa têm de estar contidos nesta lista final.
 
-Caso os dados sejam recolhidos de forma manual, torna-se difícil a representação de uma área grande, com muitos vértices dos quais resulte num grafo de maiores dimensões, pela morosidade de todo o processo de escrita nos ficheiros atrás mencionados. Os resultados da aplicação também estarão dependentes da qualidade e precisão dos valores iniciais, nomeadamente das coordenadas e das distâncias. Em consequência dos algoritmos usados, referidos na secção seguinte, os grafos alvo terão de ser obrigatoriamente não dirigidos e conexos.
+Na lista final, não poderá existir repetição de pares de vértices, ou seja, arestas repetidas e todos os vértices-casa têm de estar presentes nesta lista.
+
+Como as coordenadas e distâncias exemplo são escritos em ficheiros separados por vírgulas de forma manual, torna-se morosa a representação de uma área muito grande, com muitos vértices e arestas, dos quais resulte num grafo de maiores dimensões. Os resultados da aplicação também estão dependentes da qualidade, precisão e realismo dos valores das coordenadas e das distâncias. 
+
+Como requisito do algoritmo usado, referido na secção seguinte, os grafos alvo terão de ser obrigatoriamente não dirigidos, conexos e pesados.
 
 \subsection{Situações de contorno}
 
 \subsection{Resultados esperados}
-A aplicação determinará as coordenadas dos vértices que definem as arestas seleccionadas para instalação da cablagem com fibra óptica e a distância total mínima, soma da distância destas arestas. O subconjunto das arestas que formam a árvore de expansão mínima serão armazenadas num ficheiro \emph{output.csv}, com formatação idêntica à do ficheiro das arestas.
+A aplicação determinará as coordenadas dos vértices que definem as arestas seleccionadas para instalação da cablagem com fibra óptica e a distância total mínima, soma da distância destas arestas. O subconjunto das arestas resultante é acíclico, formando uma árvore de expansão mínima.
 
 \begin{equation}
-Output = List<V_i,V_j> V_i,V_j \in V_s
+Output = Set<V_i,V_j> V_i,V_j \in V_s
 \end{equation}
 
-A função objectivo retornará a distância mínima $D$ do somatório das distancias parciais $dist$ das arestas formadas pelos pares de vértices escolhidos.
+A função objectivo retorna a distância mínima $D$ do somatório das distancias parciais $dist$ das arestas formadas pelos pares de vértices escolhidos.
 \begin{equation}
 D = min(\sum_{i,j} dist(V_i,V_j))  \colon  V_i,V_j \in Output_k
 \end{equation}
 
 \section{Descrição da solução}
-Após análise do enunciado, verificou-se que um método adequado na resolução do problema será a utilização de um algoritmo que determine uma árvore de expansão mínima, já que se pretende passar fibra por todas as casas de forma o mais eficiente possível, ou seja, com menor gasto de cabo fibra óptica, reduzindo os custos para a empresa.
+Após análise cuidada do enunciado, concluiu-se que um método adequado na resolução do problema passa pela utilização de um algoritmo que determine a árvore de expansão mínima, uma vez que se pretende instalar fibra óptica em todas as casas de forma o mais eficiente possível, ou seja, com menor gasto de cabo de fibra óptica, reduzindo os custos para a empresa.
 
-\subsection{Prim}
-É um algoritmo ganancioso que encontra a árvore de expansão mínima para um grafo não direccionado, ou seja, este algoritmo tenta encontrar um subconjunto das arestas que formam uma árvore contendo todos os vértices onde o peso total de todas as arestas é mínimo.
-É mais eficiente do que o algoritmo de \emph{Kruskal} se o número de arestas for muito elevado em relação aos vértices.
+O grafo alvo é construído a partir da leitura de dois ficheiros: um com vértices e outro com arestas. São feitas verificações da correcção dos valores do $id$, coordenadas $x$ e $y$ e o tipo de intersecção. De igual modo, na leitura das arestas e em cada linha, são verificados os $id$ do vértice fonte e do vértice destino e sua distância. Para garantir que se trata de um grafo não dirigido, na adição de cada aresta, $(u,v)$ é igualmente adicionada uma segunda no sentido inverso $(v,u)$.
 
-\subsection{Dijkstra}
-Com programação dinâmica é usado para encontrar os caminhos mais curtos entre os vértices de um grafo. Neste caso será necessário para procurar o caminho mais curto entre casas que tenham uma ou mais intersecções de ruas entre elas, ou seja, como uma intersecção de ruas pode não ser um vértice casa, pois não contém uma casa, selecciona-se o caminho mais curto entre dois vértices-casa para que este se torne como que uma aresta entre essas duas casas de forma a ser usado correctamente no algoritmo usado para determinar a árvore expansão de custo mínimo.
+Antes de se processar o grafo na procura de uma árvore de expansão mínima, é verificada a sua conectividade. Um grafo é conexo quando existe sempre pelo menos um caminho entre quaisquer dois vértices distintos, salvo a excepção de o grafo apenas conter um vértice.
+
+\subsection{Kruskal}
+
 
 
 \section{Métricas de avaliação}
@@ -79,31 +82,47 @@ Como se vai trabalhar com grafos de pequena dimensão, no teste da aplicação, jul
 Para a medição da complexidade espacial, ter-se-á em conta a memória necessária para armazenar todas as variáveis criadas na execução do algoritmo e crescimento com o aumento da quantidade dos dados de entrada.
 
 \section{Lista de casos de utilização}
-A aplicação permite carregar vértices e arestas contidos em dois ficheiros separados por forma a construir um grafo não dirigido que represente um mapa de uma aldeia. 
+A aplicação permite a leitura de vértices e arestas contidos em dois ficheiros e construção de um grafo não dirigido que represente um mapa de uma aldeia, com o qual se pode calcular uma árvore de expansão mínima que contemple todas as casas.
 
-Atribuição de uma área máxima em $m^2$, limitando o número de vértices que são calculados pelos algoritmos que determinam a árvore de expansão mínima final.
+\begin{itemize}
 
-Sobre os grafos de entrada e saída é possível extrair informação acerca do número de vértices e arestas e a distância total em metros, soma de todas as arestas.
+\item Atribuição de uma área máxima em $m^2$, limitando o número de vértices que são abrangidos na árvore de expansão mínima final.
 
-Modo de visualização dos vértices com respectivos $id$ e posição dada pelos valores $x$ e $y$ em píxeis e o seu tipo \texttt{INTERSECTION}, \texttt{HOUSE}, ou \texttt{CENTRAL}, 0, 1 e 2 respectivamente.
+\item Adição de novas centrais e cálculo do posicionamento ideal.
 
-Modo de visualização das arestas com respectivos $id$ de origem e destino e distância em metros como peso da aresta.
+\item Sobre os grafos de entrada e saída é possível consultar graficamente informação acerca do número de vértices e arestas e a distância total em metros, soma de todas as arestas.
 
-Multi-plataforma, testado em sistemas Linux e Windows.
+\item Modo de visualização dos vértices com respectivos $id$ e posição dada pelos valores $x$ e $y$ em píxeis e o seu tipo \texttt{INTERSECTION}, \texttt{HOUSE}, ou \texttt{CENTRAL}, 0, 1 e 2 respectivamente.
+
+\item Modo de visualização das arestas com respectivos $id$ de origem e de destino e distância em metros como peso da aresta.
+
+\item Multi-plataforma, testado em sistemas Linux e Windows.
+
+\end{itemize}
 
 \section{Relato das principais dificuldades encontradas no desenvolvimento do trabalho}
 Sentiram-se dificuldades na compreensão do enunciado e definição de fórmulas equivalentes aos dados de entrada pretendidos.
 
-Ao contrário de uma utilização em Windows relativamente sem problemas, o código fornecido para o visualizador de grafos não mantinha o processo pai vivo após o fecho da janela em Linux, resultante da chamada \texttt{fork()}, pelo que esta parte teve que ser rescrita, instalando-se para o efeito um \texttt{SIGCHLD} $handler$ e chamada da função de sistema \texttt{waitpid}.
+Ao contrário de uma utilização em Windows relativamente sem problemas, o código fornecido para Linux do visualizador de grafos não mantinha o processo pai vivo após o fecho da janela resultante da chamada \texttt{fork()}, pelo que esta parte teve que ser rescrita, instalando-se um \texttt{SIGCHLD} $handler$ que faz uma chamada da função de sistema \texttt{waitpid()}.
 
 \section{Indicação do esforço dedicado por cada elemento do grupo}
 
-Desenvolveu-se a leitura e escrita de ficheiros em conjunto.
+Planeou-se o esqueleto do projecto e implementou-se a leitura de ficheiros em conjunto.
 
-\subsection{José Peixoto} 
-Envolvido na interface gráfica e da linha de comandos, portando também o código desenvolvido das aulas práticas \emph{Graph.h} para o projecto. Autor do relatório.
+\subsection{José Peixoto}
+\begin{itemize}
+\item Responsável pela interface gráfica e da linha de comandos.
+\item Incorporação do código desenvolvido nas aulas práticas.
+\item Verificação da conectividade dos grafos.
+\item Limpeza das intersecções desprezáveis.
+\item Autor do relatório.
+\end{itemize}
+\emph{Graph.h}
 
 \subsection{Pedro Moura}
+\begin{itemize}
+\item Adaptação do algoritmo de Kruskal.
+\end{itemize}
 
 {\let\thefootnote\relax\footnote{N.B. Este relatório não foi escrito ao abrigo do novo Acordo Ortográfico.}}
 

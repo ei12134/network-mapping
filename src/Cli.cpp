@@ -699,7 +699,7 @@ void Cli::mstMenu() {
 				case '1':
 					cout << "Quantity: ";
 					if (!readCentrals(centralCount))
-						errMsg = " Enter a valid central amount number ";
+						errMsg = " Enter a valid central number ";
 					else if (centralCount > 1)
 						area = DBL_MAX;
 					break;
