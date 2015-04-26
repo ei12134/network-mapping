@@ -492,6 +492,11 @@ void Graph<T>::dfs(Vertex<T> *v, vector<T> &res) const {
 
 template<class T>
 vector<T> Graph<T>::bfs(Vertex<T> *v) const {
+	typename vector<Vertex<T>*>::const_iterator it = vertexSet.begin();
+	typename vector<Vertex<T>*>::const_iterator ite = vertexSet.end();
+	for (; it != ite; it++)
+		(*it)->visited = false;
+
 	vector<T> res;
 	queue<Vertex<T> *> q;
 	q.push(v);
@@ -535,7 +540,7 @@ bool Graph<T>::selectArea(double area) {
 
 	// Remove vertexes that ended up without connection
 	for (int i = 0; i < (int) vertexSet.size(); i++) {
-		if (vertexSet[i]->adj.size() == 0) {
+		if (vertexSet[i]->info.getType() != CENTRAL && vertexSet[i]->adj.size() == 0) {
 			removeVertex(vertexSet[i]->info);
 			i--;
 		}
@@ -659,12 +664,9 @@ void Graph<T>::setCentral() {
 	}
 	vecStartPos.push_back((int) vertexSet.size());
 
-	cout << " num_centrals -> " << num_centrals << endl;
-
 	unsigned int temp = 0;
 	Vertex<T>* v;
 	while (temp < num_centrals) {
-		cout << " iteration -> " << temp << endl;
 		double distMin = DBL_MAX;
 		double maxDist = 0;
 		v = vertexSet[vecStartPos[temp]];
@@ -690,8 +692,9 @@ template<class T>
 Graph<T> Graph<T>::calculateKruskal(unsigned int num_centrals) {
 	vector<Vertex<T>*> finalVec;
 
+	// returns empty graph in case of error
 	if (num_centrals == 0 || vertexSet.size() == 0)
-		return finalVec; // returns empty vector in case of error
+		return Graph();
 
 	unsigned edges_accepted = 0;
 
@@ -718,9 +721,6 @@ Graph<T> Graph<T>::calculateKruskal(unsigned int num_centrals) {
 		//Get the vertices
 		T o = minEdge.orig->info;
 		T d = minEdge.dest->info;
-
-		//Vertex<T>* origin = NULL;
-		//Vertex<T>* dest = NULL;
 
 		int i_O;
 		int i_D;

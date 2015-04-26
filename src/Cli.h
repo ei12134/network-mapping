@@ -146,7 +146,7 @@ public:
 	int displayContainer(vector<string> vec, string listName, string labels,
 			string sortStr);
 	bool readArea(double& area);
-	bool readCentrals(int& centrals);
+	bool readCentrals(unsigned int& centrals);
 	void mstMenu();
 };
 

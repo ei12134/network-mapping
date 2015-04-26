@@ -9,9 +9,6 @@ void Algorithms::loadData(const char * vertexFileName,const char * edgesFileName
 	input.clear();
 	readVertexes(vertexFileName);
 	readEdges(edgesFileName);
-	
-	// create a disposable copy
-	restoreResultGraph();
 }
 
 void Algorithms::readVertexes(const char *filePath) {
@@ -154,10 +151,6 @@ Graph<Intersection> Algorithms::getInputGraph() const {
 	return input;
 }
 
-Graph<Intersection> Algorithms::getResultGraph() const {
-	return result;
-}
-
 void Algorithms::setGraph(Graph<Intersection> graph) {
 	this->input = graph;
 }
@@ -170,11 +163,6 @@ vector<string> Algorithms::printVertices() {
 vector<string> Algorithms::printEdges() {
 	vector<string> p = input.print(true);
 	return p;
-}
-
-void Algorithms::restoreResultGraph(){
-	result.clear();
-	result = input;
 }
 
 inline bool is_Not_Number(const int & c) {

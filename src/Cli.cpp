@@ -356,14 +356,13 @@ void Cli::menu() {
 	string exitMsg = "Quit?";
 	string headerMsg = "Telefones";
 	string infMsg, errMsg;
-	Graph<Intersection> graph, result;
+	Graph<Intersection> inputGraph;
 
 	do {
 		clearScreen();
 		displayHeader(headerMsg);
 		stringstream ss;
-		graph = a.getInputGraph();
-		result = a.getResultGraph();
+		inputGraph = a.getInputGraph();
 
 		for (size_t i = 0; i < menuCmdsSize; i++)
 			cmdMsg(spacing, (i + 1), menuCmds[i], 1);
@@ -386,20 +385,20 @@ void Cli::menu() {
 		switch (input) {
 		case '1':
 			a.loadData(DEFAULT_VERTICES_FILE, DEFAULT_EDGES_FILE);
-			graph = a.getInputGraph();
-			ss << " " << graph.getNumVertex() << " vertexes and " << graph.getNumEdges() << " edges loaded ";
+			inputGraph = a.getInputGraph();
+			ss << " " << inputGraph.getNumVertex() << " vertexes and " << inputGraph.getNumEdges() << " edges loaded ";
 			infMsg = ss.str();
 			break;
 		case '2':;
-			if (graph.getVertexSet().size() == 0)
+			if (inputGraph.getVertexSet().size() == 0)
 				errMsg = " Empty or invalid graph ";
 			else {
 				mstMenu();
 			}
 			break;
 		case '3':
-			if (graph.getVertexSet().size() != 0) {
-				graphInfo(graph.getVertexSet());
+			if (inputGraph.getVertexSet().size() != 0) {
+				graphInfo(inputGraph.getVertexSet());
 			} else
 				errMsg = " Empty or invalid graph ";
 			break;
@@ -610,7 +609,7 @@ void Cli::graphViewer(const vector<Vertex<Intersection> *> vertexSet) {
 	gv->rearrange();
 }
 
-bool Cli::readCentrals(int& centrals) {
+bool Cli::readCentrals(unsigned int& centrals) {
 	string input;
 	getline(cin, input);
 	if (input.size() > 0 && is_All_Number(input) && input[0] != '0') {
@@ -638,10 +637,12 @@ void Cli::mstMenu() {
 	char input;
 	bool exit = false;
 	string header = "Minimum spanning tree";
-	int centralCount = 1;
+	unsigned int centralCount = 1;
 	double area = DBL_MAX; // meters squared
 	string infMsg, errMsg;
 	string spacing = FOUR_TABS;
+	Graph<Intersection> inputGraph;
+	Graph<Intersection> outputGraph;
 	
 	const size_t cmdsSize = 4;
 	string cmds[cmdsSize] = { "Centrals: ", "Area: ",
@@ -650,9 +651,9 @@ void Cli::mstMenu() {
 			clearScreen();
 			displayHeader(header);
 
-			// reset graphs & distances
-			Graph<Intersection> result = a.getResultGraph();
-			Graph<Intersection> bestResult = a.getResultGraph();
+			// restore graphs
+			inputGraph = a.getInputGraph();
+			outputGraph = inputGraph;
 
 			// convert values
 			string centralCountStr;
@@ -700,7 +701,7 @@ void Cli::mstMenu() {
 					cout << "Quantity: ";
 					if (!readCentrals(centralCount))
 						errMsg = " Enter a valid central number ";
-					else if (centralCount > (int)(a.getInputGraph().getVertexSet().size()) ){
+					else if (centralCount > inputGraph.getVertexSet().size()) {
 						centralCount = 1;
 						errMsg = " Number of centrals exceeded maximum limit ";
 					}
@@ -715,21 +716,29 @@ void Cli::mstMenu() {
 						centralCount = 1;
 					break;
 				case '3':
-					if (a.getInputGraph().getVertexSet().size() == 0)
+					if (outputGraph.getVertexSet().size() == 0)
 						errMsg = " Empty or invalid graph ";
 					/* make sure we have a connected graph 
 					   before searching the MST or else it will loop */
-					else if (!a.getInputGraph().getConnected())
+					else if (!outputGraph.getConnected())
 						errMsg = " Disconnected graph ";
 					else {
 						// when at least one central is defined in vertexes.csv
-						if (result.getCentrals().size() > 0)
-							result.selectArea(area);
+						if (outputGraph.getCentrals().size() > 0){
+							centralCount = 1;
+							outputGraph.selectArea(area);
+							if (!outputGraph.getConnected()){
+								errMsg = " Graph became disconnected ";
+								area = DBL_MAX;
+								graphInfo(outputGraph.getVertexSet());
+								break;
+							}
+						}
 
 						// display resultant minimum spanning tree
-						result = result.calculateKruskal(centralCount);
+						outputGraph = outputGraph.calculateKruskal(centralCount);
 
-						graphInfo(result.getVertexSet());
+						graphInfo(outputGraph.getVertexSet());
 					}		
 					break;
 				case '4':

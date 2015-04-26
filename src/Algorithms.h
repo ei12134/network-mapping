@@ -31,7 +31,6 @@ private:
 public:
 	Algorithms();
 	Graph<Intersection> getInputGraph() const;
-	Graph<Intersection> getResultGraph() const;
 	void setGraph(Graph<Intersection> graph);
 	void loadData(const char * vertexPath, const char * edgesPath);
 	void saveData();
