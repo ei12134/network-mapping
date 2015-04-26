@@ -54,6 +54,8 @@ Como requisito do algoritmo usado, referido na secção seguinte, os grafos alvo t
 \subsection{Situações de contorno}
 No mapeamento dos vértices, por forma a serem adequadamente enquadrados na resolução escolhida pelo visualizador gráfico de grafos, convencionou-se que a área total é limitada a 480000 pixeis$^2$ ($800\times600$). Para manter as proporções mais ou menos coerentes, estabeleceu-se que 1 pixel é equivalente a 2 metros. Apesar de o programa ler a área em metros quadrados, é feita internamente a conversão para unidades pixel, usando o rácio atrás referido.
 
+Para reduzir a complexidade do código, o programa decide se tem de gerar posições para as centrais caso nos ficheiros dos vértices não encontre nenhum desse tipo.
+
 \subsection{Resultados esperados}
 A aplicação determinará as coordenadas dos vértices que definem as arestas seleccionadas para instalação da cablagem com fibra óptica e a distância total mínima, soma da distância destas arestas. O subconjunto das arestas resultante é acíclico, formando uma árvore de expansão mínima.
 
@@ -80,7 +82,7 @@ Inicializam-se todos os vértices como grupos separados e declara-se o número de 
 
 No ciclo principal, as arestas são ordenadas por ordem não decrescente de distância. As arestas mais pequenas vão sendo progressivamente seleccionadas. Caso os vértices $u$ e $v$ que compõem a aresta $(u,v)$ façam parte do mesmo grupo, a aresta não pode ser adicionada, uma vez que a árvore formaria um ciclo.
 
-Como pode haver mais do que uma central, o ciclo anterior é executado enquanto o número de arestas aceites for menor do que o número de vértices, menos o número de centrais. A árvore de expansão mínima resultante destas operações é armazenada num contentor com apontadores para vértices. Sendo o número de arestas $\vert E \vert$, o número de vértices $\vert V \vert$ e o número de centrais $\vert C \vert$, a complexidade temporal deste processo é de $O (\vert E\vert \log \vert V - C \vert)$.
+Como pode haver mais do que uma central, o ciclo anterior é executado enquanto o número de arestas aceites for menor do que o número de vértices, menos o número de centrais. A árvore de expansão mínima resultante destas operações é armazenada num contentor com apontadores para vértices numa nova instância da classe \texttt{Graph}. Sendo o número de arestas $\vert E \vert$, o número de vértices $\vert V \vert$ e o número de centrais $\vert C \vert$, a complexidade temporal deste processo é de $O (\vert E\vert \log \vert V - C \vert)$.
 
 É feita a detecção dos vértices que são intersecções desprezáveis por não fazerem ligação a mais do que uma casa, reduzindo ainda mais a distância total necessária para ligar todas as casas.
 
@@ -108,6 +110,10 @@ A aplicação permite a leitura de vértices e arestas contidos em dois ficheiros e
 \section{Relato das principais dificuldades encontradas no desenvolvimento do trabalho}
 Sentiram-se dificuldades na compreensão do enunciado e na definição de fórmulas equivalentes aos dados de entrada pretendidos.
 
+Embora numa fase inicial tenhamos usado o algoritmo de Prim para determinar uma árvore de expansão mínima, em consequência da necessidade de calcular para várias centrais, adaptámos mais rapidamente o algoritmo de Kruskal para este efeito.
+
+Apesar de termos tentado determinar as melhores posições para as várias centrais, quando estas não são fornecidas nos dados de entrada, não conseguimos defini-las por forma a abranger o maior número de casas possíveis.
+
 Ao contrário de uma utilização em Windows relativamente sem problemas, o código fornecido para Linux do visualizador de grafos não mantinha o processo-pai vivo, após o fecho da janela resultante da chamada \texttt{fork()}, pelo que esta parte teve que ser rescrita, instalando-se um \texttt{SIGCHLD} $handler$ que faz uma chamada da função de sistema \texttt{waitpid()}.
 
 \section{Indicação do esforço dedicado por cada elemento do grupo}
@@ -126,6 +132,8 @@ Planeou-se o esqueleto do projecto e implementou-se a leitura de ficheiros em co
 \subsection{Pedro Moura}
 \begin{itemize}
 \item Adaptação do algoritmo de Kruskal.
+\item Selecção de centrais em quantidade indicada pelo utilizador.
+\item Limpeza das intersecções desprezáveis.
 \end{itemize}
 
 {\let\thefootnote\relax\footnote{N.B. Este relatório não foi escrito ao abrigo do novo Acordo Ortográfico.}}
