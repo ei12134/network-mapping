@@ -45,13 +45,14 @@ Exemplo: \texttt{2;3;150} (o vértice número 3 dista 150 metros do vértice 2)
 
 \subsection{Limites e condições de aplicação}
 
-Na lista final, não poderá existir repetição de pares de vértices, ou seja, arestas repetidas e todos os vértices-casa têm de estar presentes nesta lista.
+A lista final não pode conter pares de vértices, ou seja, arestas repetidas e todos os vértices-casa têm de estar presentes nesta lista.
 
 Como as coordenadas e distâncias exemplo são escritos em ficheiros separados por vírgulas de forma manual, torna-se morosa a representação de uma área muito grande, com muitos vértices e arestas, dos quais resulta num grafo de maiores dimensões. Os resultados da aplicação também estão dependentes da qualidade, precisão e realismo dos valores das coordenadas e das distâncias. 
 
 Como requisito do algoritmo usado, referido na secção seguinte, os grafos alvo terão de ser obrigatoriamente não dirigidos, conexos e pesados.
 
 \subsection{Situações de contorno}
+No mapeamento dos vértices, por forma a serem adequadamente enquadrados na resolução escolhida pelo visualizador gráfico de grafos, convencionou-se que a área total é limitada a 480000 pixeis$^2$ ($800\times600$). Para manter as proporções mais ou menos coerentes, estabeleceu-se que 1 pixel é equivalente a 2 metros. Apesar de o programa ler a área em metros quadrados é feita internamente a conversão para unidades pixel, usando o rácio atrás referido.
 
 \subsection{Resultados esperados}
 A aplicação determinará as coordenadas dos vértices que definem as arestas seleccionadas para instalação da cablagem com fibra óptica e a distância total mínima, soma da distância destas arestas. O subconjunto das arestas resultante é acíclico, formando uma árvore de expansão mínima.
@@ -68,17 +69,22 @@ D = min(\sum_{i,j} dist(V_i,V_j))  \colon  V_i,V_j \in Output_k
 \section{Descrição da solução}
 Após análise cuidada do enunciado, concluiu-se que um método adequado na resolução do problema passa pela utilização de um algoritmo que determine a árvore de expansão mínima, uma vez que se pretende instalar fibra óptica em todas as casas de forma o mais eficiente possível, ou seja, com menor gasto de cabo de fibra óptica, reduzindo os custos para a empresa.
 
-O grafo alvo é construído a partir da leitura de dois ficheiros: um com vértices e outro com arestas. São feitas verificações da correcção dos valores do $id$, coordenadas $x$ e $y$ e o tipo de intersecção. De igual modo, na leitura das arestas e em cada linha, são verificados os $id$ do vértice fonte e do vértice destino e sua distância. Para garantir que se trata de um grafo não dirigido, na adição de cada aresta, $(u,v)$ é igualmente adicionada uma segunda no sentido inverso $(v,u)$.
+O grafo alvo é construído a partir da leitura de dois ficheiros: um com vértices e outro com arestas. São feitas verificações da correcção dos valores $id$, coordenadas $x$ e $y$ e o tipo de intersecção. De igual modo, na leitura das arestas e em cada linha, são verificados os valores identificadores do vértice fonte e do vértice destino e a sua distância. Para garantir que se trata de um grafo não dirigido, na adição de cada aresta, $(u,v)$ é igualmente adicionada uma segunda no sentido inverso $(v,u)$.
 
 Antes de se processar o grafo na procura de uma árvore de expansão mínima, é verificada a sua conectividade. Um grafo é conexo quando existe sempre pelo menos um caminho entre quaisquer dois vértices distintos, salvo a excepção de o grafo apenas conter um vértice. Para resolver o problema inicial recorreu-se a uma variante do algoritmo de Kruskal.
 
 \subsection{Algoritmo de Kruskal}
 O algoritmo de Kruskal é um algoritmo ganancioso que consegue descobrir um subconjunto acíclico que conecta todos os vértices por forma a ter um peso total mínimo. A este subconjunto também se pode designar por árvore de expansão mínima.
 
-Inicializou-se... pg.626
-Loop
-Return
+Inicializam-se todos os vértices como grupos separados e declara-se o número de arestas aceites como nulo. É feita a cópia de todas as arestas existentes para um vector.
 
+No ciclo principal, as arestas são ordenadas por ordem não decrescente de distância. As arestas mais pequenas vão sendo progressivamente seleccionadas. Caso os vértices $v$ e $u$ que compõem a aresta $(u,v)$ façam parte do mesmo grupo, a aresta não pode ser adicionada, uma vez que a árvore formaria um ciclo.
+
+Como pode haver mais do que uma central, o ciclo anterior é executado enquanto o número de arestas aceites for menor do que o numero de vértices, menos o número de centrais. A árvore de expansão mínima resultante destas operações é armazenada num contentor com apontadores para vértices. Sendo o número de arestas $\vert E \vert$, o número de vértices $\vert V \vert$ e o número de centrais $\vert C \vert$, A complexidade temporal deste processo é de $O (\vert E\vert \log \vert V - C \vert)$.
+
+É feita a detecção dos vértices que são intersecções desprezáveis por não fazerem ligação a mais do que uma casa, reduzindo ainda mais a distância total necessária para ligar todas as casas.
+
+Caso apenas exista uma central, a área dada como $input$ é considerada como último filtro a aplicar sobre as casas seleccionadas. Quando é feita a instalação de mais do que uma central, é feita uma pesquisa do vértice-casa mais centralizado nas sub-árvores de expansão mínima.
 
 \section{Lista de casos de utilização}
 A aplicação permite a leitura de vértices e arestas contidos em dois ficheiros e a construção de um grafo não dirigido que represente um mapa de uma aldeia, com o qual se pode calcular uma árvore de expansão mínima que contemple todas as casas.
@@ -87,11 +93,11 @@ A aplicação permite a leitura de vértices e arestas contidos em dois ficheiros e
 
 \item Atribuição de uma área máxima em $m^2$, limitando o número de vértices que são abrangidos na árvore de expansão mínima final.
 
-\item Adição de novas centrais e cálculo do posicionamento ideal.
+\item Adição de novas centrais e cálculo do seu posicionamento ideal.
 
-\item Sobre os grafos de entrada e saída é possível consultar graficamente informação acerca do número de vértices e arestas e a distância total em metros, soma de todas as arestas.
+\item Sobre os grafos de entrada e saída é possível consultar graficamente informação acerca do número de vértices e arestas e a distância total em metros, soma de todas as arestas. As intersecções entre ruas são mostradas como vértices amarelos, as casas como vértices azuis e as centrais a vermelho.
 
-\item Modo de visualização dos vértices com respectivos $id$ e posição dada pelos valores $x$ e $y$ em píxeis e o seu tipo \texttt{INTERSECTION}, \texttt{HOUSE}, ou \texttt{CENTRAL}, 0, 1 e 2 respectivamente.
+\item Modo de visualização dos vértices com respectivos $id$ e posição dada pelos valores $x$ e $y$ em pixeis e o seu tipo \texttt{INTERSECTION}, \texttt{HOUSE}, ou \texttt{CENTRAL}, 0, 1 e 2 respectivamente.
 
 \item Modo de visualização das arestas com respectivos $id$ de origem e de destino e distância em metros como peso da aresta.
 
@@ -100,7 +106,7 @@ A aplicação permite a leitura de vértices e arestas contidos em dois ficheiros e
 \end{itemize}
 
 \section{Relato das principais dificuldades encontradas no desenvolvimento do trabalho}
-Sentiram-se dificuldades na compreensão do enunciado e definição de fórmulas equivalentes aos dados de entrada pretendidos.
+Sentiram-se dificuldades na compreensão do enunciado e na definição de fórmulas equivalentes aos dados de entrada pretendidos.
 
 Ao contrário de uma utilização em Windows relativamente sem problemas, o código fornecido para Linux do visualizador de grafos não mantinha o processo pai vivo após o fecho da janela resultante da chamada \texttt{fork()}, pelo que esta parte teve que ser rescrita, instalando-se um \texttt{SIGCHLD} $handler$ que faz uma chamada da função de sistema \texttt{waitpid()}.
 
