@@ -37,7 +37,7 @@ Pretende-se guardar os dados em dois ficheiros distintos, \texttt{vertexes.csv},
 
 É lido um vértice por cada linha, contendo o $id$ e são separados por ponto e vírgula dos valores posicionais $x$ e $y$ e de um valor que determina se o vértice é uma intersecção de ruas - 0 ou uma casa - 1.
 
-Exemplo: \texttt{3;264;250;1} (o vértice número 3 é uma casa com coordenadas $x$ e $y$ de 264 e 250 píxeis respectivamente)\vspace{0,50cm}
+Exemplo: \texttt{3;264;250;1} (o vértice número 3 é uma casa com coordenadas $x$ e $y$ de 264 e 250 pixeis respectivamente)\vspace{0,50cm}
 
 É lida uma aresta por cada linha, sendo os primeiros dois valores os números identificativos dos vértices e o último a distância em metros entre eles.
 
@@ -47,7 +47,7 @@ Exemplo: \texttt{2;3;150} (o vértice número 3 dista 150 metros do vértice 2)
 
 Na lista final, não poderá existir repetição de pares de vértices, ou seja, arestas repetidas e todos os vértices-casa têm de estar presentes nesta lista.
 
-Como as coordenadas e distâncias exemplo são escritos em ficheiros separados por vírgulas de forma manual, torna-se morosa a representação de uma área muito grande, com muitos vértices e arestas, dos quais resulte num grafo de maiores dimensões. Os resultados da aplicação também estão dependentes da qualidade, precisão e realismo dos valores das coordenadas e das distâncias. 
+Como as coordenadas e distâncias exemplo são escritos em ficheiros separados por vírgulas de forma manual, torna-se morosa a representação de uma área muito grande, com muitos vértices e arestas, dos quais resulta num grafo de maiores dimensões. Os resultados da aplicação também estão dependentes da qualidade, precisão e realismo dos valores das coordenadas e das distâncias. 
 
 Como requisito do algoritmo usado, referido na secção seguinte, os grafos alvo terão de ser obrigatoriamente não dirigidos, conexos e pesados.
 
@@ -70,19 +70,18 @@ Após análise cuidada do enunciado, concluiu-se que um método adequado na resoluç
 
 O grafo alvo é construído a partir da leitura de dois ficheiros: um com vértices e outro com arestas. São feitas verificações da correcção dos valores do $id$, coordenadas $x$ e $y$ e o tipo de intersecção. De igual modo, na leitura das arestas e em cada linha, são verificados os $id$ do vértice fonte e do vértice destino e sua distância. Para garantir que se trata de um grafo não dirigido, na adição de cada aresta, $(u,v)$ é igualmente adicionada uma segunda no sentido inverso $(v,u)$.
 
-Antes de se processar o grafo na procura de uma árvore de expansão mínima, é verificada a sua conectividade. Um grafo é conexo quando existe sempre pelo menos um caminho entre quaisquer dois vértices distintos, salvo a excepção de o grafo apenas conter um vértice.
+Antes de se processar o grafo na procura de uma árvore de expansão mínima, é verificada a sua conectividade. Um grafo é conexo quando existe sempre pelo menos um caminho entre quaisquer dois vértices distintos, salvo a excepção de o grafo apenas conter um vértice. Para resolver o problema inicial recorreu-se a uma variante do algoritmo de Kruskal.
 
-\subsection{Kruskal}
+\subsection{Algoritmo de Kruskal}
+O algoritmo de Kruskal é um algoritmo ganancioso que consegue descobrir um subconjunto acíclico que conecta todos os vértices por forma a ter um peso total mínimo. A este subconjunto também se pode designar por árvore de expansão mínima.
 
+Inicializou-se... pg.626
+Loop
+Return
 
-
-\section{Métricas de avaliação}
-Como se vai trabalhar com grafos de pequena dimensão, no teste da aplicação, julga-se necessária a criação de testes unitários que executem de forma repetida o mesmo código numa ordem de magnitude o suficientemente grande para se efectuarem medições com valores de múltiplos de segundo.
-
-Para a medição da complexidade espacial, ter-se-á em conta a memória necessária para armazenar todas as variáveis criadas na execução do algoritmo e crescimento com o aumento da quantidade dos dados de entrada.
 
 \section{Lista de casos de utilização}
-A aplicação permite a leitura de vértices e arestas contidos em dois ficheiros e construção de um grafo não dirigido que represente um mapa de uma aldeia, com o qual se pode calcular uma árvore de expansão mínima que contemple todas as casas.
+A aplicação permite a leitura de vértices e arestas contidos em dois ficheiros e a construção de um grafo não dirigido que represente um mapa de uma aldeia, com o qual se pode calcular uma árvore de expansão mínima que contemple todas as casas.
 
 \begin{itemize}
 
@@ -117,7 +116,6 @@ Planeou-se o esqueleto do projecto e implementou-se a leitura de ficheiros em co
 \item Limpeza das intersecções desprezáveis.
 \item Autor do relatório.
 \end{itemize}
-\emph{Graph.h}
 
 \subsection{Pedro Moura}
 \begin{itemize}
@@ -129,4 +127,9 @@ Planeou-se o esqueleto do projecto e implementou-se a leitura de ficheiros em co
 \appendix
 \section{Map}
 \centerline{\includegraphics[angle=90, scale=0.40]{../files/images/map.png}}
+
+\begin{thebibliography}{9}
+\bibitem{Thomas}Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, \emph{Introduction to algorithms Third Edition}, Cambridge, MA [etc.] : The MIT Press, cop. 2009.
+\end{thebibliography}
+
 \end{document}
