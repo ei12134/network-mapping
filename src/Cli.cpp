@@ -700,6 +700,10 @@ void Cli::mstMenu() {
 					cout << "Quantity: ";
 					if (!readCentrals(centralCount))
 						errMsg = " Enter a valid central number ";
+					else if (centralCount > (int)(a.getInputGraph().getVertexSet().size()) ){
+						centralCount = 1;
+						errMsg = " Number of centrals exceeded maximum limit ";
+					}
 					else if (centralCount > 1)
 						area = DBL_MAX;
 					break;
@@ -718,9 +722,13 @@ void Cli::mstMenu() {
 					else if (!a.getInputGraph().getConnected())
 						errMsg = " Disconnected graph ";
 					else {
+						// when at least one central is defined in vertexes.csv
+						if (result.getCentrals().size() > 0)
+							result.selectArea(area);
+
 						// display resultant minimum spanning tree
-						result = a.getInputGraph().calculateKruskal(centralCount);
-						result.selectArea(area);
+						result = result.calculateKruskal(centralCount);
+
 						graphInfo(result.getVertexSet());
 					}		
 					break;

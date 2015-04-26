@@ -183,6 +183,7 @@ public:
 	Graph();
 	Graph(const Graph<T>& g);
 	vector<Vertex<T> *> getVertexSet() const;
+	vector<Vertex<T>*> getCentrals() const;
 	vector<string> print(bool edges) const;
 	int getNumVertex() const;
 	int getNumEdges() const;
@@ -206,8 +207,8 @@ public:
 	double bfMst(int centralIndex, double area);
 	vector<Vertex<T>*> calculatePrim();
 	Graph<T> calculateKruskal(unsigned int num_centrals);
-	void cleanIntersections(vector<Vertex<T>*> &vec);
-	void setCentral(vector<Vertex<T>*> &vec);
+	void cleanIntersections();
+	void setCentral();
 	bool selectArea(double area);
 	~Graph();
 };
@@ -219,20 +220,10 @@ Graph<T>::Graph() {
 
 template<class T>
 Graph<T>::Graph(vector<Vertex<T> *> v) {
-	// Copy vertexes
-	for (size_t i = 0; i < v.size(); i++) {
-		addVertex(v[i]->info);
-	}
-	// Copy edges
-	for (size_t i = 0; i < v.size(); i++) {
-		T source = v[i]->info;
-		vector<Edge<T> > cpyAdj = v[i]->adj;
-
-		for (size_t x = 0; x < cpyAdj.size(); x++) {
-			T destiny = cpyAdj[x].dest->info;
-			double distance = cpyAdj[x].distance;
-			addEdge(source, destiny, distance);
-		}
+	vertexSet = v;
+	for (size_t i = 0; i < vertexSet.size(); i++) {
+		if(vertexSet[i]->info.getType() == CENTRAL)
+			centrals.push_back(vertexSet[i]);
 	}
 }
 
@@ -270,6 +261,11 @@ Graph<T>::~Graph() {
 template<class T>
 int Graph<T>::getNumVertex() const {
 	return vertexSet.size();
+}
+
+template<class T>
+vector<Vertex<T>*> Graph<T>::getCentrals() const {
+	return centrals;
 }
 
 template<class T>
@@ -519,7 +515,7 @@ vector<T> Graph<T>::bfs(Vertex<T> *v) const {
 
 template<class T>
 bool Graph<T>::selectArea(double area) {
-	if (centrals.size() == 0 || area == DBL_MAX)
+	if (centrals.size() < 1 || area == DBL_MAX)
 		return false;
 
 	double radius = sqrt(abs((area / 2.0) / PI));
@@ -546,29 +542,6 @@ bool Graph<T>::selectArea(double area) {
 	}
 
 	return true;
-}
-
-template<class T>
-double Graph<T>::bfMst(int centralIndex, double area) {
-
-	// Select centrals
-	// getTotalDistance
-
-	if (vertexSet[centralIndex]->info.getType() == HOUSE) {
-		vertexSet[centralIndex]->info.setType(CENTRAL);
-		centrals.push_back(vertexSet[centralIndex]);
-	} else
-		return DBL_MAX; // couldn't set central
-
-	// filter area when only one central is available 
-	//if (central <=1)
-	// Divide area by meters/pixels ratio = 2
-	double radius = sqrt(abs((area / 2.0) / PI));
-	selectArea(radius); // requires centrals.size() != 0
-
-	calculatePrim();
-
-	return this->getTotalDistance();
 }
 
 template<class T>
@@ -639,27 +612,27 @@ vector<Vertex<T>*> Graph<T>::calculatePrim() {
 }
 
 template<class T>
-void Graph<T>::cleanIntersections(vector<Vertex<T>*> &vec) {
+void Graph<T>::cleanIntersections() {
 	bool reCheck;
 	// Clean redundant intersections
 	do {
 		reCheck = false;
-		for (unsigned int i = 0; i < vec.size(); i++) {
-			if (vec[i]->info.getType() == INTERSECTION) {
-				if (vec[i]->adj.size() == 0) {
-					delete vec[i];
-					vec.erase(vec.begin() + i);
+		for (unsigned int i = 0; i < vertexSet.size(); i++) {
+			if (vertexSet[i]->info.getType() == INTERSECTION) {
+				if (vertexSet[i]->adj.size() == 0) {
+					delete vertexSet[i];
+					vertexSet.erase(vertexSet.begin() + i);
 					i--;
 					reCheck = true;
-				} else if (vec[i]->adj.size() == 1) { // intersection alone
-					Vertex<T>* v = vec[i]->adj[0].dest;
+				} else if (vertexSet[i]->adj.size() == 1) { // intersection alone
+					Vertex<T>* v = vertexSet[i]->adj[0].dest;
 					for (unsigned int x = 0; x < v->adj.size(); x++)
-						if (v->adj[x].dest == vec[i]) {
+						if (v->adj[x].dest == vertexSet[i]) {
 							v->adj.erase(v->adj.begin() + x);
 							break;
 						}
-					delete vec[i];
-					vec.erase(vec.begin() + i);
+					delete vertexSet[i];
+					vertexSet.erase(vertexSet.begin() + i);
 					i--;
 					reCheck = true;
 				}
@@ -669,22 +642,24 @@ void Graph<T>::cleanIntersections(vector<Vertex<T>*> &vec) {
 }
 
 template<class T>
-void Graph<T>::setCentral(vector<Vertex<T>*> &vec) {
-	if (vec.size() < 1)
+void Graph<T>::setCentral() {
+	if (centrals.size() > 0 || vertexSet.size() < 1)
 		return;
 
-	sort(vec.begin(), vec.end(), group_greater_than<T>());
+	sort(vertexSet.begin(), vertexSet.end(), group_greater_than<T>());
 
 	vector<int> vecStartPos;
 	vecStartPos.push_back(0);
 	unsigned int num_centrals = 1;
-	for (unsigned x = 1; x < vec.size(); x++) {
-		if (vec[x - 1]->group != vec[x]->group) {
+	for (unsigned x = 1; x < vertexSet.size(); x++) {
+		if (vertexSet[x - 1]->group != vertexSet[x]->group) {
 			vecStartPos.push_back(x);
 			num_centrals++;
 		}
 	}
-	vecStartPos.push_back((int) vec.size());
+	vecStartPos.push_back((int) vertexSet.size());
+
+	cout << " num_centrals -> " << num_centrals << endl;
 
 	unsigned int temp = 0;
 	Vertex<T>* v;
@@ -692,20 +667,21 @@ void Graph<T>::setCentral(vector<Vertex<T>*> &vec) {
 		cout << " iteration -> " << temp << endl;
 		double distMin = DBL_MAX;
 		double maxDist = 0;
-		v = vec[vecStartPos[temp]];
+		v = vertexSet[vecStartPos[temp]];
 		for (int x = vecStartPos[temp]; x < vecStartPos[temp + 1] - 1; x++) {
 			maxDist = 0;
 			for (int y = vecStartPos[temp] + 1; y < vecStartPos[temp + 1]; y++) {
-				double tempDist = vec[x]->distance(vec[y]);
+				double tempDist = vertexSet[x]->distance(vertexSet[y]);
 				if (tempDist > maxDist)
 					maxDist = tempDist;
 			}
 			if (distMin > maxDist) {
 				distMin = maxDist;
-				v = vec[x];
+				v = vertexSet[x];
 			}
 		}
 		v->info.setType(CENTRAL);
+		centrals.push_back(v);
 		temp++;
 	}
 }
@@ -716,15 +692,6 @@ Graph<T> Graph<T>::calculateKruskal(unsigned int num_centrals) {
 
 	if (num_centrals == 0 || vertexSet.size() == 0)
 		return finalVec; // returns empty vector in case of error
-
-// put in edge for
-	int contHouses = 0;
-	for (unsigned int i = 0; i < this->vertexSet.size(); i++) {
-		if (vertexSet[i]->info.getType() == HOUSE)
-			contHouses++;
-	}
-	if (contHouses < num_centrals)
-		return finalVec;
 
 	unsigned edges_accepted = 0;
 
@@ -782,12 +749,13 @@ Graph<T> Graph<T>::calculateKruskal(unsigned int num_centrals) {
 		}
 	}
 
-// cleans redundant intersection
+	
+	Graph g = Graph<T>(finalVec);
+	g.setCentral();
+	// cleans redundant intersection
+	g.cleanIntersections();
 
-	setCentral(finalVec);
-
-	//cleanIntersections(finalVec);
-	return Graph(finalVec);
+	return g;
 }
 
 #endif // GRAPH_H_
