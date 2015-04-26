@@ -350,9 +350,8 @@ void Cli::displayHeader(string& header) {
 void Cli::menu() {
 	char input;
 	bool exit = false;
-	const size_t menuCmdsSize = 7;
-	string menuCmds[menuCmdsSize] = { "Build graph", "MST",
-			"GraphViewer", "Info", "Vertices", "Edges\n", "Quit" };
+	const size_t menuCmdsSize = 6;
+	string menuCmds[menuCmdsSize] = { "Build graph", "MST", "Display", "Vertices", "Edges\n", "Quit" };
 	string spacing = string((WIDTH - menuCmds[0].size() - 4) / 2, ' ');
 	string exitMsg = "Quit?";
 	string headerMsg = "Telefones";
@@ -400,25 +399,19 @@ void Cli::menu() {
 			break;
 		case '3':
 			if (graph.getVertexSet().size() != 0) {
-				graphInfo(graph.getVertexSet(), false, true);
+				graphInfo(graph.getVertexSet());
 			} else
 				errMsg = " Empty or invalid graph ";
 			break;
 		case '4':
-			if (graph.getVertexSet().size() != 0)
-				graphInfo(graph.getVertexSet(), false, false);
-			else
-				errMsg = " Empty or invalid graph ";
-			break;
-		case '5':
 			displayContainer(a.printVertices(), "Graph vertices",
 					"\t\tId\t\tX\t\tY\t\tType", "");
 			break;
-		case '6':
+		case '5':
 			displayContainer(a.printEdges(), "Graph edges",
 					"\tSource\t\t\tDestiny\t\t\tDistance", "");
 			break;
-		case '7':
+		case '6':
 			if (confirmOperation(false, "", exitMsg, CLI_RED, true, CLI_BLACK,
 					false, 0))
 				exit = true;
@@ -515,9 +508,7 @@ int Cli::displayContainer(vector<string> vec, string listName, string labels,
 	return 0;
 }
 
-
-// take out path
-void Cli::graphInfo(const vector<Vertex<Intersection> *> vertexSet, bool path, bool gui) {
+void Cli::graphInfo(const vector<Vertex<Intersection> *> vertexSet) {
 	string headerMsg = "Graph information";
 
 	// Get statistical values from the graph
@@ -550,24 +541,21 @@ void Cli::graphInfo(const vector<Vertex<Intersection> *> vertexSet, bool path, b
 			infFgI, 0);
 	cout << totalDistance << " m " << "\n\n\n";
 	
-	if (gui) {
-		coloredString(true, "", "    Central   ", CLI_BLACK, false, CLI_RED, true, 1);
-		coloredString(true, "", "     House    ", CLI_GRAY, true, CLI_BLUE, true, 1);
-		coloredString(true, "", " Intersection ", CLI_BLACK, false, CLI_YELLOW, true, 2);
-		infoMsg(" Lauching graphical viewer ", 3);
-		coloredString(true, "", "Press any key to continue...", strFg,
-					  strFgI, strBg, strBgI, 0);
-		cout.flush();
-		graphViewer(vertexSet, path);
-	} else {
-		coloredString(true, "", "Press any key to continue...", strFg,
-					  strFgI, strBg, strBgI, 0);
-	}
+
+	coloredString(true, "", "    Central   ", CLI_BLACK, false, CLI_RED, true, 1);
+	coloredString(true, "", "     House    ", CLI_GRAY, true, CLI_BLUE, true, 1);
+	coloredString(true, "", " Intersection ", CLI_BLACK, false, CLI_YELLOW, true, 2);
+	infoMsg(" Lauching graphical viewer ", 3);
+
+	coloredString(true, "", "Press any key to continue...", strFg,
+		strFgI, strBg, strBgI, 0);
+	cout.flush();
+	graphViewer(vertexSet);
 
 	getKey();
 }
 
-void Cli::graphViewer(const vector<Vertex<Intersection> *> vertexSet, bool path) {
+void Cli::graphViewer(const vector<Vertex<Intersection> *> vertexSet) {
 	stringstream ss;
 	string label;
 	
@@ -596,51 +584,28 @@ void Cli::graphViewer(const vector<Vertex<Intersection> *> vertexSet, bool path)
 		ss.clear();
 	}
 	
-	//if (!path){
-	  // Add edges
-	  int counter = 0;
-	  for (size_t x = 0; x < vertexSet.size(); x++) {
+	int counter = 0;
+	for (size_t x = 0; x < vertexSet.size(); x++) {
 		
 		vector<Edge<Intersection> > adj = vertexSet[x]->getAdj();
 		for (size_t i = 0; i < adj.size(); i++) {
 		  // Add edge
-		  gv->addEdge(counter, vertexSet[x]->getInfo().getId(),
-					  adj[i].getDest()->getInfo().getId(), EdgeType::DIRECTED);
-		  
+			gv->addEdge(counter, vertexSet[x]->getInfo().getId(),
+				adj[i].getDest()->getInfo().getId(), EdgeType::DIRECTED);
+
 		  // Add label
-		  
-		  ss << adj[i].getDistance();
-		  label = ss.str() + " m";
-		  gv->setEdgeLabel(counter, label);
-		  
-		  counter++;
-		  
+
+			ss << adj[i].getDistance();
+			label = ss.str() + " m";
+			gv->setEdgeLabel(counter, label);
+
+			counter++;
+
 		  // Clear & reset stringstream
-		  ss.str(std::string());
-		  ss.clear();
-		}
-	  }
-	/*}else{
-		int counter = 0;
-		for (size_t x = 0; x < vertexSet.size(); x++) {
-			if (vertexSet[x]->path != NULL) {
-				
-				gv->addEdge(counter, vertexSet[x]->getInfo().getId(),
-							vertexSet[x]->path->getInfo().getId(),
-							EdgeType::UNDIRECTED);
-				//Add label
-				ss << vertexSet[x]->getDist();
-				label = ss.str() + " m";
-				gv->setEdgeLabel(counter, label);
-				counter++;
-				
-			}
-			// Clear & reset stringstream
 			ss.str(std::string());
 			ss.clear();
 		}
-	}*/
-	
+	}
 	// Redraw
 	gv->rearrange();
 }
@@ -689,9 +654,6 @@ void Cli::mstMenu() {
 			Graph<Intersection> result = a.getResultGraph();
 			Graph<Intersection> bestResult = a.getResultGraph();
 
-			double distance = DBL_MAX;
-			double tmpDistance = DBL_MAX;
-
 			// convert values
 			string centralCountStr;
 			stringstream ss;
@@ -719,7 +681,7 @@ void Cli::mstMenu() {
 			cmdMsg(spacing, (2 + 1), cmds[2], 2);
 
 			for (size_t i = 3; i < cmdsSize; i++)
-				cmdMsg(spacing, (i + 1), cmds[i], 1);
+				cmdMsg(spacing, (i + 1), cmds[i], 2);
 			
 			// Print pending messages
 			if (infMsg.size() > 0) {
@@ -730,7 +692,7 @@ void Cli::mstMenu() {
 				errorMsg(errMsg, 2);
 				errMsg.clear();
 			}
-			cout << endl << spacing << PROMPT_SYMBOL;
+			cout << spacing << PROMPT_SYMBOL;
 			
 			input = getKey();
 			switch (input) {
@@ -751,22 +713,14 @@ void Cli::mstMenu() {
 				case '3':
 					if (a.getInputGraph().getVertexSet().size() == 0)
 						errMsg = " Empty or invalid graph ";
+					/* make sure we have a connected graph 
+					   before searching the MST or else it will loop */
+					else if (!a.getInputGraph().getConnected())
+						errMsg = " Disconnected graph ";
 					else {
-						/*for (size_t i = 0; i < result.getVertexSet().size(); i++) {
-							// restore graph
-							a.restoreResultGraph();
-							result = a.getResultGraph();
-							tmpDistance = result.bfMst(i,area);
-
-							if (tmpDistance < distance) {
-								distance = tmpDistance;
-								bestResult = result;
-							}
-						}*/
-						// display minimum spanning tree
-						graphInfo(a.getInputGraph().calculateKruskal(centralCount), true, true);
-					}
-					
+						// display resultant minimum spanning tree
+						graphInfo(a.getInputGraph().calculateKruskal(centralCount));
+					}		
 					break;
 				case '4':
 					exit = true;

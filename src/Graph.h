@@ -179,6 +179,7 @@ public:
 	vector<string> print(bool edges) const;
 	int getNumVertex() const;
 	int getNumEdges() const;
+	bool getConnected() const;
 	double getTotalDistance() const;
 	int maxNewChildren(Vertex<T> *v, T &inf) const;
 	bool addVertex(const T & in);
@@ -270,6 +271,15 @@ double Graph<T>::getTotalDistance() const {
 template<class T>
 vector<Vertex<T> *> Graph<T>::getVertexSet() const {
 	return vertexSet;
+}
+
+template<class T>
+bool Graph<T>::getConnected() const {
+	for (size_t i = 0; i < vertexSet.size(); i++) {
+		if(vertexSet[i]->getAdj().size() == 0)
+			return false;
+	}
+	return true;
 }
 
 template<class T>

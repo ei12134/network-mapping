@@ -16,15 +16,17 @@ void Algorithms::loadData(const char * vertexFileName,const char * edgesFileName
 
 void Algorithms::readVertexes(const char *filePath) {
 	fstream file;
-	string line, sId, sType;
+	string line, sId, sX, sY, sType;
 	stringstream ss, cnv;
 	int x, y;
 	int id;
 	int type;
+	unsigned int lineCounter = 0;
 	
 	file.open(filePath);
 	if (file.is_open()) {
 		while (file.good()) {
+			lineCounter++;
 			try {
 				// clear used variables
 				line.clear();
@@ -37,28 +39,28 @@ void Algorithms::readVertexes(const char *filePath) {
 				ss << line;
 				
 				// parse a line
-				if (!getline(ss, sId, ';'))
+				if (!getline(ss, sId, ';') || !is_All_Number(sId))
 					throw Exception<string>("Error reading id", "Vertex");
 				cnv << sId;
 				cnv >> id;
 				cnv.str(std::string());
 				cnv.clear();
 				
-				if (!getline(ss, sId, ';'))
+				if (!getline(ss, sX, ';') || !is_All_Number(sX))
 					throw Exception<string>("Error reading x", "Vertex");
-				cnv << sId;
+				cnv << sX;
 				cnv >> x;
 				cnv.str(std::string());
 				cnv.clear();
 				
-				if (!getline(ss, sId, ';'))
+				if (!getline(ss, sY, ';') || !is_All_Number(sY))
 					throw Exception<string>("Error reading y", "Vertex");
-				cnv << sId;
+				cnv << sY;
 				cnv >> y;
 				cnv.str(std::string());
 				cnv.clear();
 				
-				if (!getline(ss, sType))
+				if (!getline(ss, sType) || !is_All_Number(sType))
 					throw Exception<string>("Error reading type", "Vertex");
 				cnv << sType;
 				cnv >> type;
@@ -68,7 +70,13 @@ void Algorithms::readVertexes(const char *filePath) {
 				// add intersection to the graph
 				Intersection i(id, x, y, type);
 				input.addVertex(i);
+				
 			} catch (Exception<string> &e) {
+				// move to next line & cleanup before retry
+				getline(ss, sType);
+				cnv.str(std::string());
+				cnv.clear();
+				cout << "Failed to read vertex from line " << lineCounter << "\n";
 			}
 		}
 	}
@@ -81,10 +89,12 @@ void Algorithms::readEdges(const char *filePath) {
 	stringstream ss, cnv;
 	double distance;
 	unsigned int srcId, dstId;
+	unsigned int lineCounter = 0;
 	
 	file.open(filePath);
 	if (file.is_open()) {
 		while (file.good()) {
+			lineCounter++;
 			try {
 				// clear used variables
 				line.clear();
@@ -98,33 +108,42 @@ void Algorithms::readEdges(const char *filePath) {
 				ss << line;
 				
 				// parse a line
-				if (!getline(ss, sSrcId, ';'))
+				if (!getline(ss, sSrcId, ';') || !is_All_Number(sSrcId))
 					throw Exception<string>("Error reading source id", "Edges");
 				cnv << sSrcId;
 				cnv >> srcId;
+				cnv.str(std::string());
 				cnv.clear();
 				
-				if (!getline(ss, sDstId, ';'))
+				if (!getline(ss, sDstId, ';') || !is_All_Number(sDstId))
 					throw Exception<string>("Error reading destiny id",
 											"Edges");
 					cnv << sDstId;
 				cnv >> dstId;
+				cnv.str(std::string());
 				cnv.clear();
 				
-				if (!getline(ss, sDist))
+				if (!getline(ss, sDist) || !is_All_Number(sDist))
 					throw Exception<string>("Error reading distance", "Edges");
 				cnv << sDist;
 				cnv >> distance;
+				cnv.str(std::string());
 				cnv.clear();
 				
 				// find vertexes
 				Intersection src(srcId, 0, 0, INTERSECTION);
 				Intersection dst(dstId, 0, 0, INTERSECTION);
 				
-				// add edge to the graph
+				// add edges to the graph
 				input.addEdge(src, dst, distance);
 				input.addEdge(dst, src, distance);
+
 			} catch (Exception<string> &e) {
+				// move to next line & cleanup before retry
+				getline(ss, sDist);
+				cnv.str(std::string());
+				cnv.clear();
+				cout << "Failed to read edge from line " << lineCounter << "\n";
 			}
 		}
 	}

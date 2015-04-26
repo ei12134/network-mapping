@@ -140,8 +140,8 @@ public:
 	}
 
 	void menu();
-	void graphInfo(const vector<Vertex<Intersection> *> vertexSet, bool path, bool gui);
-	void graphViewer(const vector<Vertex<Intersection> *> vertexSet, bool path);
+	void graphInfo(const vector<Vertex<Intersection> *> vertexSet);
+	void graphViewer(const vector<Vertex<Intersection> *> vertexSet);
 
 	int displayContainer(vector<string> vec, string listName, string labels,
 			string sortStr);
