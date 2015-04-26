@@ -18,7 +18,7 @@
 \newpage
 
 \begin{abstract}
-No âmbito da unidade curricular de Concepção e Análise de Algoritmos foi-nos proposto o desenvolvimento de uma aplicação  para planificação da distribuição de fibra óptica numa aldeia que evidencie o conhecimento e uso adequado de algoritmos sobre grafos. Reú\-nem\--se dados sobre coordenadas geográficas e distâncias através do sítio da Internet \emph{OpenStreetmap}. Após a construção de um grafo que represente a área em estudo, são-lhe aplicados algoritmos que determinam a melhor solução para o problema na minimização da distância e dos custos da instalação de fibra óptica.
+No âmbito da unidade curricular de Concepção e Análise de Algoritmos, foi-nos proposto o desenvolvimento de uma aplicação para planificação da distribuição de fibra óptica numa aldeia que evidencie o conhecimento e uso adequado de algoritmos sobre grafos. Reú\-nem\--se dados sobre coordenadas geográficas e distâncias através do sítio da Internet \emph{OpenStreetmap}. Após a construção de um grafo que represente a área em estudo, são-lhe aplicados algoritmos que determinam a melhor solução para o problema na minimização da distância e dos custos da instalação de fibra óptica.
 \end{abstract}
 
 \section{Formalização do problema}
@@ -33,7 +33,7 @@ G<V,E>
 
 Área máxima $A$ em $m^2$, do círculo com centro na central da companhia Telefones, resultando na exclusão das casas fora dessa selecção.\vspace{0,50cm}
 
-Pretende-se guardar os dados em dois ficheiros distintos, \texttt{vertexes.csv}, onde temos os números identificativos das casas e intersecções de ruas, vértices do grafo e \texttt{edges.csv} onde se estabelecem as relações entre os vértices do ficheiro anterior e respectivas distâncias, por forma a caracterizar as arestas do grafo.\vspace{0,50cm}
+Pretende-se guardar os dados em dois ficheiros distintos, \texttt{vertexes.csv}, onde temos os números identificativos das casas e intersecções de ruas, vértices do grafo e \texttt{edges.csv}, a partir do qual se estabelecem as relações entre os vértices do ficheiro anterior e respectivas distâncias, por forma a caracterizar as arestas do grafo.\vspace{0,50cm}
 
 É lido um vértice por cada linha, contendo o $id$ e são separados por ponto e vírgula dos valores posicionais $x$ e $y$ e de um valor que determina se o vértice é uma intersecção de ruas - 0 ou uma casa - 1.
 
@@ -52,7 +52,7 @@ Como as coordenadas e distâncias exemplo são escritos em ficheiros separados por
 Como requisito do algoritmo usado, referido na secção seguinte, os grafos alvo terão de ser obrigatoriamente não dirigidos, conexos e pesados.
 
 \subsection{Situações de contorno}
-No mapeamento dos vértices, por forma a serem adequadamente enquadrados na resolução escolhida pelo visualizador gráfico de grafos, convencionou-se que a área total é limitada a 480000 pixeis$^2$ ($800\times600$). Para manter as proporções mais ou menos coerentes, estabeleceu-se que 1 pixel é equivalente a 2 metros. Apesar de o programa ler a área em metros quadrados é feita internamente a conversão para unidades pixel, usando o rácio atrás referido.
+No mapeamento dos vértices, por forma a serem adequadamente enquadrados na resolução escolhida pelo visualizador gráfico de grafos, convencionou-se que a área total é limitada a 480000 pixeis$^2$ ($800\times600$). Para manter as proporções mais ou menos coerentes, estabeleceu-se que 1 pixel é equivalente a 2 metros. Apesar de o programa ler a área em metros quadrados, é feita internamente a conversão para unidades pixel, usando o rácio atrás referido.
 
 \subsection{Resultados esperados}
 A aplicação determinará as coordenadas dos vértices que definem as arestas seleccionadas para instalação da cablagem com fibra óptica e a distância total mínima, soma da distância destas arestas. O subconjunto das arestas resultante é acíclico, formando uma árvore de expansão mínima.
@@ -61,7 +61,7 @@ A aplicação determinará as coordenadas dos vértices que definem as arestas selec
 Output = Set<V_i,V_j> V_i,V_j \in V_s
 \end{equation}
 
-A função objectivo retorna a distância mínima $D$ do somatório das distancias parciais $dist$ das arestas formadas pelos pares de vértices escolhidos.
+A função objectivo retorna a distância mínima $D$ do somatório das distâncias parciais $dist$ das arestas formadas pelos pares de vértices escolhidos.
 \begin{equation}
 D = min(\sum_{i,j} dist(V_i,V_j))  \colon  V_i,V_j \in Output_k
 \end{equation}
@@ -71,16 +71,16 @@ Após análise cuidada do enunciado, concluiu-se que um método adequado na resoluç
 
 O grafo alvo é construído a partir da leitura de dois ficheiros: um com vértices e outro com arestas. São feitas verificações da correcção dos valores $id$, coordenadas $x$ e $y$ e o tipo de intersecção. De igual modo, na leitura das arestas e em cada linha, são verificados os valores identificadores do vértice fonte e do vértice destino e a sua distância. Para garantir que se trata de um grafo não dirigido, na adição de cada aresta, $(u,v)$ é igualmente adicionada uma segunda no sentido inverso $(v,u)$.
 
-Antes de se processar o grafo na procura de uma árvore de expansão mínima, é verificada a sua conectividade. Um grafo é conexo quando existe sempre pelo menos um caminho entre quaisquer dois vértices distintos, salvo a excepção de o grafo apenas conter um vértice. Para resolver o problema inicial recorreu-se a uma variante do algoritmo de Kruskal.
+Antes de se processar o grafo na procura de uma árvore de expansão mínima, é verificada a sua conectividade. Um grafo é conexo quando existe sempre pelo menos um caminho entre quaisquer dois vértices distintos, salvo a excepção de o grafo apenas conter um vértice. Para resolver o problema inicial, recorreu-se a uma variante do algoritmo de Kruskal.
 
 \subsection{Algoritmo de Kruskal}
 O algoritmo de Kruskal é um algoritmo ganancioso que consegue descobrir um subconjunto acíclico que conecta todos os vértices por forma a ter um peso total mínimo. A este subconjunto também se pode designar por árvore de expansão mínima.
 
-Inicializam-se todos os vértices como grupos separados e declara-se o número de arestas aceites como nulo. É feita a cópia de todas as arestas existentes para um vector.
+Inicializam-se todos os vértices como grupos separados e declara-se o número de arestas aceites como nulo. É feita uma cópia de todas as arestas existentes para um vector.
 
-No ciclo principal, as arestas são ordenadas por ordem não decrescente de distância. As arestas mais pequenas vão sendo progressivamente seleccionadas. Caso os vértices $v$ e $u$ que compõem a aresta $(u,v)$ façam parte do mesmo grupo, a aresta não pode ser adicionada, uma vez que a árvore formaria um ciclo.
+No ciclo principal, as arestas são ordenadas por ordem não decrescente de distância. As arestas mais pequenas vão sendo progressivamente seleccionadas. Caso os vértices $u$ e $v$ que compõem a aresta $(u,v)$ façam parte do mesmo grupo, a aresta não pode ser adicionada, uma vez que a árvore formaria um ciclo.
 
-Como pode haver mais do que uma central, o ciclo anterior é executado enquanto o número de arestas aceites for menor do que o numero de vértices, menos o número de centrais. A árvore de expansão mínima resultante destas operações é armazenada num contentor com apontadores para vértices. Sendo o número de arestas $\vert E \vert$, o número de vértices $\vert V \vert$ e o número de centrais $\vert C \vert$, A complexidade temporal deste processo é de $O (\vert E\vert \log \vert V - C \vert)$.
+Como pode haver mais do que uma central, o ciclo anterior é executado enquanto o número de arestas aceites for menor do que o número de vértices, menos o número de centrais. A árvore de expansão mínima resultante destas operações é armazenada num contentor com apontadores para vértices. Sendo o número de arestas $\vert E \vert$, o número de vértices $\vert V \vert$ e o número de centrais $\vert C \vert$, a complexidade temporal deste processo é de $O (\vert E\vert \log \vert V - C \vert)$.
 
 É feita a detecção dos vértices que são intersecções desprezáveis por não fazerem ligação a mais do que uma casa, reduzindo ainda mais a distância total necessária para ligar todas as casas.
 
@@ -95,7 +95,7 @@ A aplicação permite a leitura de vértices e arestas contidos em dois ficheiros e
 
 \item Adição de novas centrais e cálculo do seu posicionamento ideal.
 
-\item Sobre os grafos de entrada e saída é possível consultar graficamente informação acerca do número de vértices e arestas e a distância total em metros, soma de todas as arestas. As intersecções entre ruas são mostradas como vértices amarelos, as casas como vértices azuis e as centrais a vermelho.
+\item Sobre os grafos de entrada e saída, é possível consultar graficamente informação acerca do número de vértices e arestas e a distância total em metros, soma de todas as arestas. As intersecções entre ruas são mostradas como vértices amarelos, as casas como vértices azuis e as centrais a vermelho.
 
 \item Modo de visualização dos vértices com respectivos $id$ e posição dada pelos valores $x$ e $y$ em pixeis e o seu tipo \texttt{INTERSECTION}, \texttt{HOUSE}, ou \texttt{CENTRAL}, 0, 1 e 2 respectivamente.
 
@@ -108,7 +108,7 @@ A aplicação permite a leitura de vértices e arestas contidos em dois ficheiros e
 \section{Relato das principais dificuldades encontradas no desenvolvimento do trabalho}
 Sentiram-se dificuldades na compreensão do enunciado e na definição de fórmulas equivalentes aos dados de entrada pretendidos.
 
-Ao contrário de uma utilização em Windows relativamente sem problemas, o código fornecido para Linux do visualizador de grafos não mantinha o processo pai vivo após o fecho da janela resultante da chamada \texttt{fork()}, pelo que esta parte teve que ser rescrita, instalando-se um \texttt{SIGCHLD} $handler$ que faz uma chamada da função de sistema \texttt{waitpid()}.
+Ao contrário de uma utilização em Windows relativamente sem problemas, o código fornecido para Linux do visualizador de grafos não mantinha o processo-pai vivo, após o fecho da janela resultante da chamada \texttt{fork()}, pelo que esta parte teve que ser rescrita, instalando-se um \texttt{SIGCHLD} $handler$ que faz uma chamada da função de sistema \texttt{waitpid()}.
 
 \section{Indicação do esforço dedicado por cada elemento do grupo}
 
