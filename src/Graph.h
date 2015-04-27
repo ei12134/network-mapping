@@ -443,7 +443,7 @@ void Graph<T>::dfsVisit() {
 	it = vertexSet.begin();
 	for (; it != ite; it++)
 		if ((*it)->visited == false) {
-			cout << "Being visited" << endl;
+			//cout << "Being visited" << endl;
 			dfsVisit(*it);
 		}
 }
@@ -745,7 +745,7 @@ Graph<T> Graph<T>::calculateKruskal(unsigned int num_centrals) {
 			finalVec[i_O]->addEdge(finalVec[i_D], minEdge.getDistance());
 			finalVec[i_D]->addEdge(finalVec[i_O], minEdge.getDistance());
 			edges_accepted++;
-			cout << "Adding edge from vertex " << finalVec[i_O]->info << " to vertex " << finalVec[i_D]->info << endl;
+			//cout << "Adding edge from vertex " << finalVec[i_O]->info << " to vertex " << finalVec[i_D]->info << endl;
 		}
 	}
 

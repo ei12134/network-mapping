@@ -141,6 +141,8 @@ public:
 
 	void menu();
 	void graphInfo(const vector<Vertex<Intersection> *> vertexSet);
+	
+	bool repeatedEdge(vector<Edge<Intersection> > edges, Edge<Intersection> e);
 	void graphViewer(const vector<Vertex<Intersection> *> vertexSet);
 
 	int displayContainer(vector<string> vec, string listName, string labels,

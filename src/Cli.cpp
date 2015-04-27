@@ -554,6 +554,14 @@ void Cli::graphInfo(const vector<Vertex<Intersection> *> vertexSet) {
 	getKey();
 }
 
+bool Cli::repeatedEdge(vector<Edge<Intersection> > edges, Edge<Intersection> e){
+	for (size_t i = 0; i < edges.size(); i++){
+		if (edges[i].getOrig() == e.getDest() && edges[i].getDest() == e.getOrig())
+			return true;
+	}
+	return false;
+}
+
 void Cli::graphViewer(const vector<Vertex<Intersection> *> vertexSet) {
 	stringstream ss;
 	string label;
@@ -583,18 +591,25 @@ void Cli::graphViewer(const vector<Vertex<Intersection> *> vertexSet) {
 		ss.clear();
 	}
 	
+	vector<Edge<Intersection> > edges;
+	
 	int counter = 0;
 	for (size_t x = 0; x < vertexSet.size(); x++) {
-		
 		vector<Edge<Intersection> > adj = vertexSet[x]->getAdj();
 		for (size_t i = 0; i < adj.size(); i++) {
+			if (!repeatedEdge(edges, adj[i]))
+				edges.push_back(adj[i]);
+		}
+	}
+	
+	for (size_t x = 0; x < edges.size(); x++) {
 		  // Add edge
-			gv->addEdge(counter, vertexSet[x]->getInfo().getId(),
-				adj[i].getDest()->getInfo().getId(), EdgeType::DIRECTED);
+			gv->addEdge(counter, edges[x].getOrig()->getInfo().getId(),
+				edges[x].getDest()->getInfo().getId(), EdgeType::UNDIRECTED);
 
 		  // Add label
 
-			ss << adj[i].getDistance();
+			ss << edges[x].getDistance();
 			label = ss.str() + " m";
 			gv->setEdgeLabel(counter, label);
 
@@ -603,7 +618,6 @@ void Cli::graphViewer(const vector<Vertex<Intersection> *> vertexSet) {
 		  // Clear & reset stringstream
 			ss.str(std::string());
 			ss.clear();
-		}
 	}
 	// Redraw
 	gv->rearrange();
